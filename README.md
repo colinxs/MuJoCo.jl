@@ -6,7 +6,7 @@ MuJoCo functions and structs retain their C-library names (e.g. mj_step, mju_cop
 ```
 using MuJoCo
 
-act = mj_activate(ENV["MUJOCO_KEY_PATH"])
+# mj_activate(ENV["MUJOCO_KEY_PATH"]) # this shouldn't be needed as, on load, the module attempts to activate
 
 modelfile = "humanoid.xml"
 pm = mj_loadXML(modelfile)  # Raw C pointer to mjModel
@@ -14,7 +14,7 @@ pd = mj_makeData(pm)            # Raw C pointer to mjData
 
 mj_step(pm, pd) # At this point you can pass the pointers to mujoco functions
 
-# Access static Model and Data fields
+# Access mjModel and mjData structs; this makes a local copy
 m = unsafe_load(pm)
 println(m.nq, " position elements")
 d = unsafe_load(pd)
@@ -44,7 +44,7 @@ mj_resetData(m, d)
 
 mj_step(m.m, d.d) # our wrapped functions can take in the convenience struct or the Ref pointers
 
-# MuJoCo convenience functions are understood to use 0-based indexing
+# MuJoCo convenience functions are understood to use 0-based indexing, for now...
 id = mj_name2id(m, mj.OBJ_GEOM, "floor") # for humanoid.xml
 @assert id == 0
 ```
@@ -64,5 +64,5 @@ Temporary examples can be found in test suite.
 
 # Todo
 Test using @cfunctions to pass Julia code to MuJoCo callback functions
-Test / contemplate using 
+Test / contemplate making sure all conversions from 0-based to 1-based indexing is correct?
 
