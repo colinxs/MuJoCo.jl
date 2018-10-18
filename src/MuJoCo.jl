@@ -1,4 +1,4 @@
-__precompile__()
+#__precompile__()
 
 module MuJoCo
 
@@ -18,24 +18,36 @@ include("./mj.jl")
 include("./export_all.jl") # a list of all function and struct names
 
 function teardown()
+   ACTIVATED[] = false
    mj_deactivate()
 end
 
+const ACTIVATED = Ref(false)
+isactivated() = ACTIVATED[]
 function __init__()
-   if Sys.islinux()
-      Libdl.dlopen_e(libglew, Libdl.RTLD_LAZY | Libdl.RTLD_DEEPBIND | Libdl.RTLD_GLOBAL)
-   end
+   if !isactivated()
+      if Sys.islinux()
+         mjglew = Libdl.dlopen_e(libglew, Libdl.RTLD_LAZY | Libdl.RTLD_DEEPBIND | Libdl.RTLD_GLOBAL)
+      end
 
-   key = ""
-   try
-      key = ENV["MUJOCO_KEY_PATH"]
-      cmd = "ccall((:mj_activate,libmujoco),Cint,(Cstring,),\"$(key)\")"
-      eval(Meta.parse(cmd))
-   catch e
-      println("Set MUJOCO_KEY_PATH environment variable, please.")
-   end
+      key = ""
+      try
+         key = ENV["MUJOCO_KEY_PATH"]
 
-   atexit(teardown)
+         mjlib = Libdl.dlopen_e(libmujoco, Libdl.RTLD_LAZY | Libdl.RTLD_DEEPBIND | Libdl.RTLD_GLOBAL)
+         if mjlib == C_NULL
+            @error("Please build MuJoCo.jl")
+         end
+         ACTIVATED[] = Bool( ccall(Libdl.dlsym(mjlib, :mj_activate),Cint,(Cstring,),key) )
+         if !isactivated()
+            println("MuJoCo not activated; call mj_activate with path to license key.")
+         end
+      catch e
+         println("Set MUJOCO_KEY_PATH environment variable, please.")
+      end
+
+      atexit(teardown)
+   end
 end
 
 end

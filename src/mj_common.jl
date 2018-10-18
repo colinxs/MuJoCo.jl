@@ -2,7 +2,7 @@
 # TODO overload print/show/display function to not display model and data
 
 struct jlModel
-   m::Ptr{mjModel}
+   m::Ref{mjModel}
 
    qpos0::Array{mjtNum}
    qpos_spring::Array{mjtNum}
@@ -293,7 +293,7 @@ struct jlModel
 end
 
 struct jlData
-   d::Ptr{mjData} # point to c struct
+   d::Ref{mjData} # point to c struct
 
    stack::Array{mjtNum}
 

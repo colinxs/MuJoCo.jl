@@ -6,14 +6,14 @@ const MAXLINE      = 100
 const MAXLINEPNT   = 1000
 const MAXPLANEGRID = 200
 
-@enum mjtCatBit begin           # bitflags for vGeom category
+@enum mjtCatBit::Cint begin           # bitflags for vGeom category
     CAT_STATIC        = 1  # model elements in body 0
     CAT_DYNAMIC       = 2  # model elements in all other bodies
     CAT_DECOR         = 4  # decorative geoms
     CAT_ALL           = 7  # select all categories
 end
 
-@enum mjtMouse begin            # mouse interaction mode
+@enum mjtMouse::Cint begin            # mouse interaction mode
     MOUSE_NONE         = 0 # no action
     MOUSE_ROTATE_V         # rotate, vertical plane
     MOUSE_ROTATE_H         # rotate, horizontal plane
@@ -23,19 +23,19 @@ end
     MOUSE_SELECT           # selection
 end
 
-@enum mjtPertBit begin          # mouse perturbations
+@enum mjtPertBit::Cint begin          # mouse perturbations
     PERT_TRANSLATE    = 1  # translation
     PERT_ROTATE       = 2  # rotation
 end
 
-@enum mjtCamera begin           # abstract camera type
+@enum mjtCamera::Cint begin           # abstract camera type
     CAMERA_FREE        = 0 # free camera
     CAMERA_TRACKING        # tracking camera; uses trackbodyid
     CAMERA_FIXED           # fixed camera; uses fixedcamid
     CAMERA_USER            # user is responsible for setting OpenGL camera
 end
 
-@enum mjtLabel begin            # object labeling
+@enum mjtLabel::Cint begin            # object labeling
     LABEL_NONE        = 0  # nothing
     LABEL_BODY             # body labels
     LABEL_JOINT            # joint labels
@@ -54,7 +54,7 @@ end
     NLABEL                 # number of label types
 end
 
-@enum mjtFrame begin            # frame visualization
+@enum mjtFrame::Cint begin            # frame visualization
     FRAME_NONE        = 0  # no frames
     FRAME_BODY             # body frames
     FRAME_GEOM             # geom frames
@@ -66,7 +66,7 @@ end
     NFRAME                 # number of visualization frames
 end
 
-@enum mjtVisFlag begin          # flags enabling model element visualization
+@enum mjtVisFlag::Cint begin          # flags enabling model element visualization
     VIS_CONVEXHULL    = 0  # mesh convex hull
     VIS_TEXTURE            # textures
     VIS_JOINT              # joints
@@ -93,7 +93,7 @@ end
     NVISFLAG               # number of visualization flags
 end
 
-@enum mjtRndFlag begin          # flags enabling rendering effects
+@enum mjtRndFlag::Cint begin          # flags enabling rendering effects
     RND_SHADOW        = 0  # shadows
     RND_WIREFRAME          # wireframe
     RND_REFLECTION         # reflections
@@ -107,13 +107,13 @@ end
     NRNDFLAG               # number of rendering flags
 end
 
-@enum mjtStereo begin           # type of stereo rendering
+@enum mjtStereo::Cint begin           # type of stereo rendering
     STEREO_NONE       = 0  # no stereo; use left eye only
     STEREO_QUADBUFFERED    # quad buffered; revert to side-by-side if no hardware support
     STEREO_SIDEBYSIDE      # side-by-side
 end
 
-struct mjvPerturb
+mutable struct mjvPerturb
    select::Cint
    skinselect::Cint
    active::Cint
@@ -121,9 +121,11 @@ struct mjvPerturb
    refquat::SVector{4, mjtNum}
    localpos::SVector{3, mjtNum}
    scale::mjtNum
+
+   mjvPerturb() = new()
 end
 
-struct mjvCamera
+mutable struct mjvCamera
    _type::Cint
    fixedcamid::Cint
    trackbodyid::Cint
@@ -131,6 +133,8 @@ struct mjvCamera
    distance::mjtNum
    azimuth::mjtNum
    elevation::mjtNum
+
+   mjvCamera() = new()
 end
 
 struct mjvGLCamera
@@ -142,6 +146,8 @@ struct mjvGLCamera
    frustum_top::Cfloat
    frustum_near::Cfloat
    frustum_far::Cfloat
+   
+   mjvGLCamera() = new()
 end
 
 struct mjvGeom
@@ -183,7 +189,7 @@ struct mjvLight
    castshadow::mjtByte
 end
 
-struct mjvOption
+mutable struct mjvOption
    label::Cint
    frame::Cint
    geomgroup::SVector{NGROUP, mjtByte}
@@ -192,9 +198,11 @@ struct mjvOption
    tendongroup::SVector{NGROUP, mjtByte}
    actuatorgroup::SVector{NGROUP, mjtByte}
    flags::SVector{Int(NVISFLAG), mjtByte}
+
+   mjvOption() = new()
 end
 
-struct mjvScene
+mutable struct mjvScene
    maxgeom::Cint
    ngeom::Cint
    geoms::Ptr{mjvGeom}
@@ -216,9 +224,11 @@ struct mjvScene
    scale::Cfloat
    stereo::Cint
    flags::SVector{5, mjtByte}
+
+   mjvScene() = new()
 end
 
-struct mjvFigure
+mutable struct mjvFigure
    flg_legend::Cint
    flg_ticklabel::SVector{2, Cint}
    flg_extend::Cint

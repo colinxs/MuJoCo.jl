@@ -2,19 +2,19 @@
 const NAUX = 10
 const MAXTEXTURE = 1000
 
-@enum mjtGridPos begin
+@enum mjtGridPos::Cint begin
    GRID_TOPLEFT
    GRID_TOPRIGHT
    GRID_BOTTOMLEFT
    GRID_BOTTOMRIGHT
 end
 
-@enum mjtFramebuffer begin
+@enum mjtFramebuffer::Cint begin
    FB_WINDOW
    FB_OFFSCREEN
 end
 
-@enum mjtFontScale begin
+@enum mjtFontScale::Cint begin
    FONTSCALE_50  = 50
    FONTSCALE_100 = 100
    FONTSCALE_150 = 150
@@ -23,20 +23,20 @@ end
    FONTSCALE_300 = 300
 end
 
-@enum mjtFont begin
+@enum mjtFont::Cint begin
    FONT_NORMAL
    FONT_SHADOW
    FONT_BIG
 end
 
-struct mjrRect
+struct mjrRect # can't be mutable as it's used in other structs
    left::Cint
    bottom::Cint
    width::Cint
    height::Cint
 end
 
-struct mjrContext
+mutable struct mjrContext
    lineWidth::Cfloat
    shadowClip::Cfloat
    shadowScale::Cfloat

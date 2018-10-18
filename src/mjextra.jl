@@ -1,4 +1,54 @@
 
+#=
+function offsetof(type_, member::Symbol)
+  for (i, item) in enumerate(fieldnames(type_))
+    if item == member
+      return fieldoffset(type_, i)
+    end
+    #print(typeof(i))
+  end
+  # what to do when symbol not in type_?
+  throw("$type_ has no member named $member")
+end
+
+function GetStructType(type_, member::Symbol)
+  for (i, item) in enumerate(fieldnames(type_))
+    if item == member
+      return fieldtype(type_, i)
+    end
+    #print(typeof(i))
+  end
+  # what to do when symbol not in type_?
+  throw("$type_ has no member named $member")
+end
+
+function Base.getindex(ptr::Ptr{T}, s::Symbol) where {T}
+  address = UInt(ptr)
+  if address == 0
+    throw("Base.getindex(Ptr::{$T}) would dereference a NULL pointer")
+  end
+  offset = offsetof(T, s)
+  fieldtype = GetStructType(T, s)
+  fieldptr = Ptr{fieldtype}(address + offset)
+  #log("Symbol $s $ptrtype address=$address offset=$offset fieldtype=$fieldtype ptr=$ptr fieldptr=$fieldptr\n")
+  #return 123
+  return unsafe_load(fieldptr)
+end
+
+function Base.setindex!(ptr::Ptr{T}, value, s::Symbol) where {T}
+  address = UInt(ptr)
+  if address == 0
+    throw("Base.setindex!(Ptr) would write to a NULL pointer")
+  end
+  offset = offsetof(T, s)
+  fieldtype = GetStructType(T, s)
+  fieldptr = Ptr{fieldtype}(address + offset)
+  #log("Symbol $s $ptrtype address=$address offset=$offset fieldtype=$fieldtype ptr=$ptr fieldptr=$fieldptr\n")
+  unsafe_store!(fieldptr, value)
+  return value
+end
+=#
+
 # returns a julia centric version of mujoco's model and data fields
 # that allows direct access to Ptr array fields as julia vectors
 function mapmodel(pm::Ptr{mjModel})
@@ -22,7 +72,7 @@ function mapmodel(c_model::mjModel, pm::Ptr{mjModel})
          push!(margs, raw)
       end
    end
-   return jlModel(pm, margs...)
+   return jlModel(Ref(unsafe_load(pm)), margs...)
 end
 function wrap_array(p, s1::Int, s2::Int)
    len = s1 * s2 
@@ -48,7 +98,7 @@ function mapdata(c_model::mjModel, pd::Ptr{mjData})
       raw = wrap_array(getfield(c_data, f), Int(d_sizes[f][1]), Int(d_sizes[f][2]))
       push!(dargs, raw)
    end
-   return jlData(pd, dargs...)
+   return jlData(Ref(unsafe_load(pd)), dargs...)
 end
 
 function mapmujoco(pm::Ptr{mjModel}, pd::Ptr{mjData}) 
@@ -90,8 +140,8 @@ const mjstructs = Dict(mjContact     => structinfo(mjContact),
                        mjvFigure     => structinfo(mjvFigure))
 
 # access mujoco struct fields through the julia version of model and data
-myconvert(T, m::Ptr{mjModel})::T = convert(T, m)
-myconvert(T, d::Ptr{mjData})::T = convert(T, d)
+myconvert(T, m::Ref{mjModel})::T = convert(T, unsafe_convert(Ptr{mjModel}, m))
+myconvert(T, d::Ref{mjData})::T = convert(T, unsafe_convert(Ptr{mjData}, d))
 addr_to_val(T::Type{Float64}, p::UInt64)::Float64 = unsafe_load(convert(Ptr{Float64}, p))
 addr_to_val(T::Type{Float32}, p::UInt64)::Float32 = unsafe_load(convert(Ptr{Float32}, p))
 addr_to_val(T::Type{Int32},   p::UInt64)::Int32   = unsafe_load(convert(Ptr{Int32},   p))
@@ -158,14 +208,14 @@ function update_ptr(p::Ptr, offset::Integer, val::SVector)
 end
 
 # mutate mujoco struct fields through the julia version of model and data
-function set(d::jlData, field::Symbol, val::Union{Integer, mjtNum})
-   f_off, f_type = dinfo[field]
-   update_ptr(d.d, f_off, convert(f_type, val)) 
-end
-function set(m::jlModel, field::Symbol, val::Union{Integer, mjtNum})
-   f_off, f_type = minfo[field]
-   update_ptr(m.m, f_off, convert(f_type, val)) 
-end
+#function set(d::jlData, field::Symbol, val::Union{Integer, mjtNum})
+#   f_off, f_type = dinfo[field]
+#   update_ptr(d.d, f_off, convert(f_type, val)) 
+#end
+#function set(m::jlModel, field::Symbol, val::Union{Integer, mjtNum})
+#   f_off, f_type = minfo[field]
+#   update_ptr(m.m, f_off, convert(f_type, val)) 
+#end
 function set(p::Ptr{T}, field::Symbol, val::Union{Integer, mjtNum, SVector}) where T
    f_off, f_type = mjstructs[T][field]
    update_ptr(p, f_off, convert(f_type, val)) 

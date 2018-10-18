@@ -1,5 +1,5 @@
-MARKSTACK(d::jlData) = return mj.get(d, :pstack)
-FREESTACK(d::jlData, mark::Cint) = mj.set(d, :pstack, mark)
+MARKSTACK(d::jlData) = return d.d[].pstack
+FREESTACK(d::jlData, mark::Cint) = d.d[].pstack = mark
 
 # Skipping MacroDefinition: mjDISABLED ( x ) ( m -> opt . disableflags & ( x ) )
 # Skipping MacroDefinition: mjENABLED ( x ) ( m -> opt . enableflags & ( x ) )
@@ -69,12 +69,13 @@ global const RNDSTRING     = ["Shadow"      "1"  "S";
                               "Id Color"    "0"  "."]
 
 const PV{T} = Union{Ptr{T},AbstractVector{T},Ptr{Cvoid}}
+const PR{T} = Union{Ptr{T},Ref{T}}
 
-import Base.unsafe_convert
-unsafe_convert(::Type{Ptr{mjModel}}, m::jlModel) = m.m
-unsafe_convert(::Type{Ptr{mjData}}, d::jlData) = d.d
-const MODEL = Union{Ptr{mjModel},jlModel}
-const DATA = Union{Ptr{mjData},jlData}
+import Base.unsafe_convert, Base.cconvert
+cconvert(::Type{Ptr{mjModel}}, m::jlModel) = unsafe_convert(Ptr{mjModel}, m.m)
+cconvert(::Type{Ptr{mjData}}, d::jlData) = unsafe_convert(Ptr{mjData}, d.d)
+const MODEL = Union{Ptr{mjModel},Ref{mjModel},jlModel}
+const DATA = Union{Ptr{mjData},Ref{mjData},jlData}
 
 
 #---------------------- License activation and certificate (mutex-protected) -----------
@@ -112,32 +113,32 @@ end
 #---------------------- Virtual file system --------------------------------------------
 
 """Initialize VFS to empty (no deallocation)."""
-function mj_defaultVFS(vfs::Ptr{mjVFS})
+function mj_defaultVFS(vfs::PR{mjVFS})
    ccall((:mj_defaultVFS,libmujoco),Cvoid,(Ptr{mjVFS},),vfs)
 end
 
 """Add file to VFS, return 0: success, 1: full, 2: repeated name, -1: not found on disk."""
-function mj_addFileVFS(vfs::Ptr{mjVFS},directory::String,filename::String)
+function mj_addFileVFS(vfs::PR{mjVFS},directory::String,filename::String)
    ccall((:mj_addFileVFS,libmujoco),Cint,(Ptr{mjVFS},Cstring,Cstring),vfs,directory,filename)
 end
 
 """Make empty file in VFS, return 0: success, 1: full, 2: repeated name."""
-function mj_makeEmptyFileVFS(vfs::Ptr{mjVFS},filename::String,filesize::Integer)
+function mj_makeEmptyFileVFS(vfs::PR{mjVFS},filename::String,filesize::Integer)
    ccall((:mj_makeEmptyFileVFS,libmujoco),Cint,(Ptr{mjVFS},Cstring,Cstring),vfs,filename,filesize)
 end
 
 """Return file index in VFS, or -1 if not found in VFS."""
-function mj_findFileVFS(vfs::Ptr{mjVFS},filename::String)
+function mj_findFileVFS(vfs::PR{mjVFS},filename::String)
    ccall((:mj_findFileVFS,libmujoco),Cint,(Ptr{mjVFS},Cstring),vfs,filename)
 end
 
 """Delete file from VFS, return 0: success, -1: not found in VFS."""
-function mj_deleteFileVFS(vfs::Ptr{mjVFS},filename::String)
+function mj_deleteFileVFS(vfs::PR{mjVFS},filename::String)
    ccall((:mj_deleteFileVFS,libmujoco),Cint,(Ptr{mjVFS},Cstring),vfs,filename)
 end
 
 """Delete all files from VFS."""
-function mj_deleteVFS(vfs::Ptr{mjVFS})
+function mj_deleteVFS(vfs::PR{mjVFS})
    ccall((:mj_deleteVFS,libmujoco),Cvoid,(Ptr{mjVFS},),vfs)
 end
 
@@ -160,6 +161,7 @@ function mj_loadXML(filename::String,vfs::Union{Ptr{mjVFS},Ptr{Cvoid}}=C_NULL)
    end
    return m
 end
+# TODO garbage collection on returned models
 
 """
 update XML data structures with info from low-level model, save as MJCF
@@ -216,7 +218,7 @@ end
 
 #---------------------- Model and data initialization ----------------------------------
 """set default options for length range computation."""
-function mj_defaultLROpt(opt::Ptr{mjLROpt})
+function mj_defaultLROpt(opt::PR{mjLROpt})
    ccall((:mj_defaultLROpt,libmujoco),Cvoid,(Ptr{mjLROpt},),opt)
 end
 
@@ -226,27 +228,27 @@ function mj_defaultSolRefImp(solref::PV{mjtNum},solimp::PV{mjtNum})
 end
 
 """set physics options to default values"""
-function mj_defaultOption(opt::Ptr{mjOption})
+function mj_defaultOption(opt::Ptr{mjOption}) # only takes in Ptr; mjOption is struct
    ccall((:mj_defaultOption,libmujoco),Cvoid,(Ptr{mjOption},),opt)
 end
 
 """set visual options to default values"""
-function mj_defaultVisual(vis::Ptr{mjVisual})
+function mj_defaultVisual(vis::Ptr{mjVisual}) # only takes in Ptr; mjVisual is struct
    ccall((:mj_defaultVisual,libmujoco),Cvoid,(Ptr{mjVisual},),vis)
 end
 
 """copy Model; allocate new if dest is NULL"""
-function mj_copyModel(dest::Ptr{mjModel},src::Ptr{mjModel})
+function mj_copyModel(dest::Union{Ptr{mjModel},Ptr{Nothing}},src::Union{Ptr{mjModel},Ref{mjModel}})
    ccall((:mj_copyModel,libmujoco),Ptr{mjModel},(Ptr{mjModel},Ptr{mjModel}),dest,src)
 end
 
 """save model to binary file or memory buffer (buffer has precedence if szbuf>0)"""
-function mj_saveModel(m::MODEL,filename::String,buffer::Ptr{Cvoid},buffer_sz::Integer)
+function mj_saveModel(m::MODEL,filename::String,buffer::PV{Cvoid},buffer_sz::Integer)
    ccall((:mj_saveModel,libmujoco),Cvoid,(Ptr{mjModel},Cstring,Ptr{Cvoid},Cint),m,filename,buffer,buffer_sz)
 end
 
 """load model from binary file or memory buffer (buffer has precedence if szbuf>0)"""
-function mj_loadModel(filename::String,buffer::Ptr{Cvoid},buffer_sz::Integer)
+function mj_loadModel(filename::String,buffer::PV{Cvoid},buffer_sz::Integer)
    ccall((:mj_loadModel,libmujoco),Ptr{mjModel},(Cstring,Ptr{Cvoid},Cint),filename,buffer,buffer_sz)
 end
 
@@ -266,7 +268,7 @@ function mj_makeData(m::MODEL)
 end
 
 """copy Data"""
-function mj_copyData(dest::Ptr{mjData},m::MODEL,src::Ptr{mjData})
+function mj_copyData(dest::DATA,m::MODEL,src::DATA)
    ccall((:mj_copyData,libmujoco),Ptr{mjData},(Ptr{mjData},Ptr{mjModel},Ptr{mjData}),dest,m,src)
 end
 
@@ -306,7 +308,7 @@ function mj_setConst(m::MODEL,d::DATA)
 end
 
 """Set actuator_lengthrange for specified actuator; return 1 if ok, 0 if error."""
-function mj_setLengthRange(m::MODEL,d::DATA,index::Integer,opt::Ptr{mjLROpt},error::String,error_sz::Integer)
+function mj_setLengthRange(m::MODEL,d::DATA,index::Integer,opt::PR{mjLROpt},error::String,error_sz::Integer)
    ccall((:mj_setLengthRange,libmujoco),Cint,(Ptr{mjModel},Ptr{mjData},Cint,Ptr{mjLROpt},Cstring,Cint),m,d,index,opt,error,error_sz);
 end
 
@@ -587,13 +589,13 @@ function mj_jacPointAxis(m::MODEL,d::DATA,jacPoint::PV{mjtNum},jacAxis::PV{mjtNu
 end
 
 """get id of object with specified name; -1: not found; type is mjtObj"""
-function mj_name2id(m::MODEL,_type::Integer,name::String)
+function mj_name2id(m::MODEL,_type::Union{Integer,mjtObj},name::String)
    ccall((:mj_name2id,libmujoco),Cint,(Ptr{mjModel},Cint,Cstring),m,_type,pointer(name))
 end
 
 """get name of object with specified id; 0: invalid type or id; type is mjtObj"""
-function mj_id2name(m::MODEL,_type::Integer,id::Integer)
-   name=ccall((:mj_id2name,libmujoco),Cstring,(Ptr{mjModel},Cint,Cint),m,_type,id-1) # julia to c indexing
+function mj_id2name(m::MODEL,_type::Union{Integer,mjtObj},id::Integer)
+   name=ccall((:mj_id2name,libmujoco),Cstring,(Ptr{mjModel},Cint,Cint),m,_type,id) # julia to c indexing
    return unsafe_string(name)
 end
 
@@ -706,37 +708,37 @@ end
 #---------------------- Abstract interaction -------------------------------------------
 
 """set default camera"""
-function mjv_defaultCamera(cam::Ptr{mjvCamera})
+function mjv_defaultCamera(cam::PR{mjvCamera})
    ccall((:mjv_defaultCamera,libmujoco),Cvoid,(Ptr{mjvCamera},),cam)
 end
 
 """set default perturbation"""
-function mjv_defaultPerturb(pert::Ptr{mjvPerturb})
+function mjv_defaultPerturb(pert::PR{mjvPerturb})
    ccall((:mjv_defaultPerturb,libmujoco),Cvoid,(Ptr{mjvPerturb},),pert)
 end
 
 """transform pose from room to model space"""
-function mjv_room2model(modelpos::PV{mjtNum},modelquat::PV{mjtNum},roompos::PV{mjtNum},roomquat::PV{mjtNum},scn::Ptr{mjvScene})
+function mjv_room2model(modelpos::PV{mjtNum},modelquat::PV{mjtNum},roompos::PV{mjtNum},roomquat::PV{mjtNum},scn::PR{mjvScene})
    ccall((:mjv_room2model,libmujoco),Cvoid,(Ptr{mjtNum},Ptr{mjtNum},Ptr{mjtNum},Ptr{mjtNum},Ptr{mjvScene}),modelpos,modelquat,roompos,roomquat,scn)
 end
 
 """transform pose from model to room space"""
-function mjv_model2room(roompos::PV{mjtNum},roomquat::PV{mjtNum},modelpos::PV{mjtNum},modelquat::PV{mjtNum},scn::Ptr{mjvScene})
+function mjv_model2room(roompos::PV{mjtNum},roomquat::PV{mjtNum},modelpos::PV{mjtNum},modelquat::PV{mjtNum},scn::PR{mjvScene})
    ccall((:mjv_model2room,libmujoco),Cvoid,(Ptr{mjtNum},Ptr{mjtNum},Ptr{mjtNum},Ptr{mjtNum},Ptr{mjvScene}),roompos,roomquat,modelpos,modelquat,scn)
 end
 
 """get camera info in model space: average left and right OpenGL cameras"""
-function mjv_cameraInModel(headpos::PV{mjtNum},forward::PV{mjtNum},scn::Ptr{mjvScene})
+function mjv_cameraInModel(headpos::PV{mjtNum},forward::PV{mjtNum},scn::PR{mjvScene})
    ccall((:mjv_cameraInModel,libmujoco),Cvoid,(Ptr{mjtNum},Ptr{mjtNum},Ptr{mjvScene}),headpos,forward,scn)
 end
 
 """get camera info in room space: average left and right OpenGL cameras"""
-function mjv_cameraInRoom(headpos::PV{mjtNum},forward::PV{mjtNum},scn::Ptr{mjvScene})
+function mjv_cameraInRoom(headpos::PV{mjtNum},forward::PV{mjtNum},scn::PR{mjvScene})
    ccall((:mjv_cameraInRoom,libmujoco),Cvoid,(Ptr{mjtNum},Ptr{mjtNum},Ptr{mjvScene}),headpos,forward,scn)
 end
 
 """get frustum height at unit distance from camera; average left and right OpenGL cameras"""
-function mjv_frustumHeight(scn::Ptr{mjvScene})
+function mjv_frustumHeight(scn::PR{mjvScene})
    ccall((:mjv_frustumHeight,libmujoco),mjtNum,(Ptr{mjvScene},),scn)
 end
 
@@ -746,46 +748,46 @@ function mjv_alignToCamera(res::PV{mjtNum},vec::PV{mjtNum},forward::PV{mjtNum})
 end
 
 """move camera with mouse; action is mjtMouse"""
-function mjv_moveCamera(m::MODEL,action::Integer,reldx::mjtNum,reldy::mjtNum,scn::Ptr{mjvScene},cam::Ptr{mjvCamera})
+function mjv_moveCamera(m::MODEL,action::Integer,reldx::mjtNum,reldy::mjtNum,scn::PR{mjvScene},cam::PR{mjvCamera})
    ccall((:mjv_moveCamera,libmujoco),Cvoid,(Ptr{mjModel},Cint,mjtNum,mjtNum,Ptr{mjvScene},Ptr{mjvCamera}),m,action,reldx,reldy,scn,cam)
 end
 
 """move perturb object with mouse; action is mjtMouse"""
-function mjv_movePerturb(m::MODEL,d::DATA,action::Integer,reldx::mjtNum,reldy::mjtNum,scn::Ptr{mjvScene},pert::Ptr{mjvPerturb})
+function mjv_movePerturb(m::MODEL,d::DATA,action::Integer,reldx::mjtNum,reldy::mjtNum,scn::PR{mjvScene},pert::PR{mjvPerturb})
    ccall((:mjv_movePerturb,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Cint,mjtNum,mjtNum,Ptr{mjvScene},Ptr{mjvPerturb}),m,d,action,reldx,reldy,scn,pert)
 end
 
 """move model with mouse; action is mjtMouse"""
-function mjv_moveModel(m::MODEL,action::Integer,reldx::mjtNum,reldy::mjtNum,roomup::PV{mjtNum},scn::Ptr{mjvScene})
+function mjv_moveModel(m::MODEL,action::Integer,reldx::mjtNum,reldy::mjtNum,roomup::PV{mjtNum},scn::PR{mjvScene})
    ccall((:mjv_moveModel,libmujoco),Cvoid,(Ptr{mjModel},Cint,mjtNum,mjtNum,Ptr{mjtNum},Ptr{mjvScene}),m,action,reldx,reldy,roomup,scn)
 end
 
 """copy perturb pos,quat from selected body; set scale for perturbation"""
-function mjv_initPerturb(m::MODEL,d::DATA,scn::Ptr{mjvScene},pert::Ptr{mjvPerturb})
+function mjv_initPerturb(m::MODEL,d::DATA,scn::PR{mjvScene},pert::PR{mjvPerturb})
    ccall((:mjv_initPerturb,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Ptr{mjvScene},Ptr{mjvPerturb}),m,d,scn,pert)
 end
 
 """set perturb pos,quat in d->mocap when selected body is mocap, and in d->qpos otherwise
 d->qpos written only if flg_paused and subtree root for selected body has free joint
 """
-function mjv_applyPerturbPose(m::MODEL,d::DATA,pert::Ptr{mjvPerturb},flg_paused::Integer)
+function mjv_applyPerturbPose(m::MODEL,d::DATA,pert::PR{mjvPerturb},flg_paused::Integer)
    ccall((:mjv_applyPerturbPose,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Ptr{mjvPerturb},Cint),m,d,pert,flg_paused)
 end
 
 """set perturb force,torque in d->xfrc_applied, if selected body is dynamic"""
-function mjv_applyPerturbForce(m::MODEL,d::DATA,pert::Ptr{mjvPerturb})
+function mjv_applyPerturbForce(m::MODEL,d::DATA,pert::PR{mjvPerturb})
    ccall((:mjv_applyPerturbForce,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Ptr{mjvPerturb}),m,d,pert)
 end
 
 """Return the average of two OpenGL cameras."""
-function mjv_averageCamera(cam1::Ptr{mjvGLCamera}, cam2::Ptr{mjvGLCamera})
+function mjv_averageCamera(cam1::Ptr{mjvGLCamera}, cam2::PR{mjvGLCamera})
    ccall((:mjv_averageCamera,libmujoco),mjvGLCamera,(Ptr{mjvGLCamera},Ptr{mjvGLCamera}),cam1,cam2)
 end
 
 """Select geom or skin with mouse, return bodyid; -1: none selected."""
-function mjv_select(m::MODEL,d::DATA,vopt::Ptr{mjvOption},
+function mjv_select(m::MODEL,d::DATA,vopt::PR{mjvOption},
                     aspectratio::mjtNum, relx::mjtNum, rely::mjtNum,
-                    scn::Ptr{mjvScene}, selpnt::PV{mjtNum}, geomid::PV{Integer}, skinid::PV{Integer})
+                    scn::PR{mjvScene}, selpnt::PV{mjtNum}, geomid::PV{Integer}, skinid::PV{Integer})
    ccall((:mjv_select,libmujoco),Cint,(Ptr{mjModel},Ptr{mjData},Ptr{mjvOption},
                                        mjtNum,mjtNum,mjtNum,
                                        Ptr{mjvScene},Ptr{mjtNum},Ptr{Cint},Ptr{Cint}),
@@ -797,17 +799,17 @@ end
 #---------------------- Asbtract visualization -----------------------------------------
 
 """set default visualization options"""
-function mjv_defaultOption(opt::Ptr{mjvOption})
+function mjv_defaultOption(opt::PR{mjvOption})
    ccall((:mjv_defaultOption,libmujoco),Cvoid,(Ptr{mjvOption},),opt)
 end
 
 """Set default figure."""
-function mjv_defaultFigure(fig::Ptr{mjvFigure})
+function mjv_defaultFigure(fig::PR{mjvFigure})
    ccall((:mjv_defaultFigure,libmujoco),Cvoid,(Ptr{mjvFigure},),fig)
 end
 
 """Initialize given geom fields when not NULL, set the rest to their default values."""
-function mjv_initGeom(geom::Ptr{mjvGeom},_type::Integer,size::PV{mjtNum},
+function mjv_initGeom(geom::PR{mjvGeom},_type::Integer,size::PV{mjtNum},
                       pos::PV{mjtNum},mat::PV{mjtNum},rgba::Ptr{Float32})
    ccall((:mjv_initGeom,libmujoco),Cvoid,(Ptr{mjvGeom},Cint,Ptr{mjtNum},Ptr{mjtNum},Ptr{mjtNum},Ptr{Cfloat}),geom,_type,size,pos,mat,rbga)
 end
@@ -815,49 +817,49 @@ end
 """Set (type, size, pos, mat) for connector-type geom between given points.
 Assume that mjv_initGeom was already called to set all other properties.
 """
-function mjv_makeConnector(geom::Ptr{mjvGeom},_type::Integer,width::mjtNum, 
+function mjv_makeConnector(geom::PR{mjvGeom},_type::Integer,width::mjtNum, 
                            a0::mjtNum,a1::mjtNum,a2::mjtNum, 
                            b0::mjtNum,b1::mjtNum,b2::mjtNum)
    ccall((:mjv_makeConnector,libmujoco),Cvoid,(Ptr{mjvGeom},Cint,mjtNum,mjtNum,mjtNum,mjtNum,mjtNum,mjtNum,mjtNum),geom,_type,width,a0,a1,a2,b0,b1,b2)
 end
 
 """Set default abstract scene."""
-function mjv_defaultScene(scn::Ptr{mjvScene})
+function mjv_defaultScene(scn::PR{mjvScene})
    ccall((:mjv_defaultScene,libmujoco),Cvoid,(Ptr{mjvScene},),scn)
 end
 
 """allocate and init abstract scene"""
-function mjv_makeScene(scn::Ptr{mjvScene},maxgeom::Integer)
-   ccall((:mjv_makeScene,libmujoco),Cvoid,(Ptr{mjvScene},Cint),scn,maxgeom)
+function mjv_makeScene(m::MODEL,scn::PR{mjvScene},maxgeom::Integer)
+   ccall((:mjv_makeScene,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjvScene},Cint),m,scn,maxgeom)
 end
 
 """free abstract scene"""
-function mjv_freeScene(scn::Ptr{mjvScene})
+function mjv_freeScene(scn::PR{mjvScene})
    ccall((:mjv_freeScene,libmujoco),Cvoid,(Ptr{mjvScene},),scn)
 end
 
 """update entire scene"""
-function mjv_updateScene(m::MODEL,d::DATA,opt::Ptr{mjvOption},pert::Ptr{mjvPerturb},cam::Ptr{mjvCamera},catmask::Integer,scn::Ptr{mjvScene})
+function mjv_updateScene(m::MODEL,d::DATA,opt::PR{mjvOption},pert::PR{mjvPerturb},cam::PR{mjvCamera},catmask::Integer,scn::PR{mjvScene})
    ccall((:mjv_updateScene,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Ptr{mjvOption},Ptr{mjvPerturb},Ptr{mjvCamera},Cint,Ptr{mjvScene}),m,d,opt,pert,cam,catmask,scn)
 end
 
 """add geoms from selected categories"""
-function mjv_addGeoms(m::MODEL,d::DATA,opt::Ptr{mjvOption},pert::Ptr{mjvPerturb},catmask::Integer,scn::Ptr{mjvScene})
+function mjv_addGeoms(m::MODEL,d::DATA,opt::PR{mjvOption},pert::PR{mjvPerturb},catmask::Integer,scn::PR{mjvScene})
    ccall((:mjv_addGeoms,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Ptr{mjvOption},Ptr{mjvPerturb},Cint,Ptr{mjvScene}),m,d,opt,pert,catmask,scn)
 end
 
 """Make list of lights."""
-function mjv_makeLights(m::MODEL,d::DATA,scn::Ptr{mjvScene})
+function mjv_makeLights(m::MODEL,d::DATA,scn::PR{mjvScene})
    ccall((:mjv_makeLights,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Ptr{mjvScene}),m,d,scn)
 end
 
 """update camera only"""
-function mjv_updateCamera(m::MODEL,d::DATA,cam::Ptr{mjvCamera},scn::Ptr{mjvScene})
+function mjv_updateCamera(m::MODEL,d::DATA,cam::PR{mjvCamera},scn::PR{mjvScene})
    ccall((:mjv_updateCamera,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Ptr{mjvCamera},Ptr{mjvScene}),m,d,cam,scn)
 end
 
 """Update skins."""
-function mjv_updateSkin(m::MODEL,d::DATA,scn::Ptr{mjvScene})
+function mjv_updateSkin(m::MODEL,d::DATA,scn::PR{mjvScene})
    ccall((:mjv_updateSkin,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjData},Ptr{mjvScene}),m,d,scn)
 end
 
@@ -865,100 +867,100 @@ end
 #---------------------- OpenGL rendering -----------------------------------------------
 
 """set default mjrContext"""
-function mjr_defaultContext(con::Ptr{mjrContext})
+function mjr_defaultContext(con::PR{mjrContext})
    ccall((:mjr_defaultContext,libmujoco),Cvoid,(Ptr{mjrContext},),con)
 end
 
 """allocate resources in custom OpenGL context; fontscale is mjtFontScale"""
-function mjr_makeContext(m::MODEL,con::Ptr{mjrContext},fontscale::Integer)
+function mjr_makeContext(m::MODEL,con::PR{mjrContext},fontscale::Integer)
    ccall((:mjr_makeContext,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjrContext},Cint),m,con,fontscale)
 end
 
 """Change font of existing context."""
-function mjr_changeFont(fontscale::Integer,con::Ptr{mjrContext})
+function mjr_changeFont(fontscale::Integer,con::PR{mjrContext})
    ccall((:mjr_changeFont,libmujoco),Cvoid,(Cint,Ptr{mjrContext}),fontscale,con)
 end
 
 """Add Aux buffer with given index to context; free previous Aux buffer."""
-function mjr_addAux(index::Integer,width::Integer,height::Integer,samples::Integer,con::Ptr{mjrContext})
+function mjr_addAux(index::Integer,width::Integer,height::Integer,samples::Integer,con::PR{mjrContext})
    ccall((:mjr_addAux,libmujoco),Cvoid,(Cint,Cint,Cint,Cint,Ptr{mjrContext}),index,width,height,samples,con)
 end
 
 """free resources in custom OpenGL context, set to default"""
-function mjr_freeContext(con::Ptr{mjrContext})
+function mjr_freeContext(con::PR{mjrContext})
    ccall((:mjr_freeContext,libmujoco),Cvoid,(Ptr{mjrContext},),con)
 end
 
 """(re) upload texture to GPU"""
-function mjr_uploadTexture(m::MODEL,con::Ptr{mjrContext},texid::Integer)
+function mjr_uploadTexture(m::MODEL,con::PR{mjrContext},texid::Integer)
    ccall((:mjr_uploadTexture,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjrContext},Cint),m,con,texid)
 end
 
 """(re) upload mesh to GPU"""
-function mjr_uploadMesh(m::MODEL,con::Ptr{mjrContext},meshid::Integer)
+function mjr_uploadMesh(m::MODEL,con::PR{mjrContext},meshid::Integer)
    ccall((:mjr_uploadMesh,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjrContext},Cint),m,con,meshid)
 end
 
 """(re) upload height field to GPU"""
-function mjr_uploadHField(m::MODEL,con::Ptr{mjrContext},hfieldid::Integer)
+function mjr_uploadHField(m::MODEL,con::PR{mjrContext},hfieldid::Integer)
    ccall((:mjr_uploadHField,libmujoco),Cvoid,(Ptr{mjModel},Ptr{mjrContext},Cint),m,con,hfieldid)
 end
 
 """Make con->currentBuffer current again."""
-function mjr_restoreBuffer(con::Ptr{mjrContext})
+function mjr_restoreBuffer(con::PR{mjrContext})
    ccall((:mjr_restoreBuffer,libmujoco),Cvoid,(Ptr{mjrContext},),con)
 end
 
 """set OpenGL framebuffer for rendering: mjFB_WINDOW or mjFB_OFFSCREEN
 if only one buffer is available, set that buffer and ignore framebuffer argument
 """
-function mjr_setBuffer(framebuffer::Integer,con::Ptr{mjrContext})
+function mjr_setBuffer(framebuffer::Integer,con::PR{mjrContext})
    ccall((:mjr_setBuffer,libmujoco),Cvoid,(Cint,Ptr{mjrContext}),framebuffer,con)
 end
 
 """read pixels from current OpenGL framebuffer to client buffer
 viewport is in OpenGL framebuffer; client buffer starts at (0,0)
 """
-function mjr_readPixels(rgb::PV{Cuchar},depth::PV{Cfloat},viewport::mjrRect,con::Ptr{mjrContext})
+function mjr_readPixels(rgb::PV{Cuchar},depth::PV{Cfloat},viewport::mjrRect,con::PR{mjrContext})
    ccall((:mjr_readPixels,libmujoco),Cvoid,(Ptr{Cuchar},Ptr{Cfloat},mjrRect,Ptr{mjrContext}),rgb,depth,viewport,con)
 end
 
 """draw pixels from client buffer to current OpenGL framebuffer
 viewport is in OpenGL framebuffer; client buffer starts at (0,0)
 """
-function mjr_drawPixels(rgb::PV{Cuchar},depth::PV{Cfloat},viewport::mjrRect,con::Ptr{mjrContext})
+function mjr_drawPixels(rgb::PV{Cuchar},depth::PV{Cfloat},viewport::mjrRect,con::PR{mjrContext})
    ccall((:mjr_drawPixels,libmujoco),Cvoid,(Ptr{Cuchar},Ptr{Cfloat},mjrRect,Ptr{mjrContext}),rgb,depth,viewport,con)
 end
 
 """blit from src viewpoint in current framebuffer to dst viewport in other framebuffer
 if src, dst have different size and flg_depth==0, color is interpolated with GL_LINEAR
 """
-function mjr_blitBuffer(src::mjrRect,dst::mjrRect,flg_color::Integer,flg_depth::Integer,con::Ptr{mjrContext})
+function mjr_blitBuffer(src::mjrRect,dst::mjrRect,flg_color::Integer,flg_depth::Integer,con::PR{mjrContext})
    ccall((:mjr_blitBuffer,libmujoco),Cvoid,(mjrRect,mjrRect,Cint,Cint,Ptr{mjrContext}),src,dst,flg_color,flg_depth,con)
 end
 
 """Set Aux buffer for custom OpenGL rendering (call restoreBuffer when done)."""
-function mjr_setAux(index::Integer,con::Ptr{mjrContext})
+function mjr_setAux(index::Integer,con::PR{mjrContext})
    ccall((:mjr_setAux,libmujoco),Cvoid,(Cint,Ptr{mjrContext}),index,con)
 end
 
 """Blit from Aux buffer to con->currentBuffer."""
-function mjr_blitAux(index::Integer,src::mjrRect,left::Integer,bottom::Integer,con::Ptr{mjrContext})
+function mjr_blitAux(index::Integer,src::mjrRect,left::Integer,bottom::Integer,con::PR{mjrContext})
    ccall((:mjr_blitAux,libmujoco),Cvoid,(Cint,mjrRect,Cint,Cint,Ptr{mjrContext}),index,src,left,bottom,con)
 end
 
 """draw text at (x,y) in relative coordinates; font is mjtFont"""
-function mjr_text(font::Integer,txt::String,con::Ptr{mjrContext},x::Cfloat,y::Cfloat,r::Cfloat,g::Cfloat,b::Cfloat)
+function mjr_text(font::Integer,txt::String,con::PR{mjrContext},x::Cfloat,y::Cfloat,r::Cfloat,g::Cfloat,b::Cfloat)
    ccall((:mjr_text,libmujoco),Cvoid,(Cint,Cstring,Ptr{mjrContext},Cfloat,Cfloat,Cfloat,Cfloat,Cfloat),font,txt,con,x,y,r,g,b)
 end
 
 """draw text overlay; font is mjtFont; gridpos is mjtGridPos"""
-function mjr_overlay(font::Integer,gridpos::Integer,viewport::mjrRect,overlay::String,overlay2::String,con::Ptr{mjrContext})
+function mjr_overlay(font::Integer,gridpos::Integer,viewport::mjrRect,overlay::String,overlay2::String,con::PR{mjrContext})
    ccall((:mjr_overlay,libmujoco),Cvoid,(Cint,Cint,mjrRect,Cstring,Cstring,Ptr{mjrContext}),font,gridpos,viewport,overlay,overlay2,con)
 end
 
 """get maximum viewport for active buffer"""
-function mjr_maxViewport(con::Ptr{mjrContext})
+function mjr_maxViewport(con::PR{mjrContext})
    ccall((:mjr_maxViewport,libmujoco),mjrRect,(Ptr{mjrContext},),con)
 end
 
@@ -968,12 +970,12 @@ function mjr_rectangle(viewport::mjrRect,r::Cfloat,g::Cfloat,b::Cfloat,a::Cfloat
 end
 
 """draw lines"""
-function mjr_figure(viewport::mjrRect,fig::Ptr{mjvFigure},con::Ptr{mjrContext})
+function mjr_figure(viewport::mjrRect,fig::PR{mjvFigure},con::PR{mjrContext})
    ccall((:mjr_figure,libmujoco),Cvoid,(mjrRect,Ptr{mjvFigure},Ptr{mjrContext}),viewport,fig,con)
 end
 
 """3D rendering"""
-function mjr_render(viewport::mjrRect,scn::Ptr{mjvScene},con::Ptr{mjrContext})
+function mjr_render(viewport::mjrRect,scn::PR{mjvScene},con::PR{mjrContext})
    ccall((:mjr_render,libmujoco),Cvoid,(mjrRect,Ptr{mjvScene},Ptr{mjrContext}),viewport,scn,con)
 end
 
@@ -1659,22 +1661,22 @@ function mju_standardNormal(num2::PV{mjtNum})
 end
 
 """convert from float to mjtNum"""
-function mju_f2n(res::PV{mjtNum},vec::Ptr{Cfloat},n::Integer)
+function mju_f2n(res::PV{mjtNum},vec::PV{Cfloat},n::Integer)
    ccall((:mju_f2n,libmujoco),Cvoid,(Ptr{mjtNum},Ptr{Cfloat},Cint),res,vec,n)
 end
 
 """convert from mjtNum to float"""
-function mju_n2f(res::Ptr{Cfloat},vec::PV{mjtNum},n::Integer)
+function mju_n2f(res::PV{Cfloat},vec::PV{mjtNum},n::Integer)
    ccall((:mju_n2f,libmujoco),Cvoid,(Ptr{Cfloat},Ptr{mjtNum},Cint),res,vec,n)
 end
 
 """convert from double to mjtNum"""
-function mju_d2n(res::PV{mjtNum},vec::Ptr{Cdouble},n::Integer)
+function mju_d2n(res::PV{mjtNum},vec::PV{Cdouble},n::Integer)
    ccall((:mju_d2n,libmujoco),Cvoid,(Ptr{mjtNum},Ptr{Cdouble},Cint),res,vec,n)
 end
 
 """convert from mjtNum to double"""
-function mju_n2d(res::Ptr{Cdouble},vec::PV{mjtNum},n::Integer)
+function mju_n2d(res::PV{Cdouble},vec::PV{mjtNum},n::Integer)
    ccall((:mju_n2d,libmujoco),Cvoid,(Ptr{Cdouble},Ptr{mjtNum},Cint),res,vec,n)
 end
 
@@ -1706,27 +1708,27 @@ function mjui_themeColor(ind::Integer)
 end
 
 """Add definitions to UI."""
-function mjui_add(ui::PV{mjUI},def::PV{mjuiDef})
+function mjui_add(ui::PR{mjUI},def::PV{mjuiDef})
    ccall((:mjui_add,libmujoco),Cvoid,(Ptr{mjUI},Ptr{mjuiDef}),ui,def)
 end
 
 """Compute UI sizes."""
-function mjui_resize(ui::PV{mjUI},con::PV{mjrContext})
+function mjui_resize(ui::PR{mjUI},con::PR{mjrContext})
    ccall((:mjui_resize,libmujoco),Cvoid,(Ptr{mjUI},Ptr{mjrContext}),ui,con)
 end
 
 """Update specific section/item; -1: update all."""
-function mjui_update(section::Integer,item::Integer,ui::PV{mjUI},state::PV{mjuiState},con::PV{mjrContext})
+function mjui_update(section::Integer,item::Integer,ui::PR{mjUI},state::PR{mjuiState},con::PR{mjrContext})
    ccall((:mjui_update,libmujoco),Cvoid,(Cint,Cint,Ptr{mjUI},Ptr{mjuiState},Ptr{mjrContext}),section,item,ui,state,con)
 end
 
 """Handle UI event, return pointer to changed item, NULL if no change."""
-function mjui_event(ui::PV{mjUI},state::PV{mjuiState},con::PV{mjrContext})
+function mjui_event(ui::PR{mjUI},state::PR{mjuiState},con::PR{mjrContext})
    ccall((:mjui_event,libmujoco),Ptr{mjuiItem},(Ptr{mjUI},Ptr{mjuiState},Ptr{mjrContext}),ui,state,con)
 end
 
 """Copy UI image to current buffer."""
-function mjui_render(ui::PV{mjUI},state::PV{mjuiState},con::PV{mjrContext})
+function mjui_render(ui::PR{mjUI},state::PR{mjuiState},con::PR{mjrContext})
    ccall((:mjui_render,libmujoco),Cvoid,(Ptr{mjUI},Ptr{mjuiState},Ptr{mjrContext}),ui,state,con)
 end
 

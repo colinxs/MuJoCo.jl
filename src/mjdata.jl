@@ -1,6 +1,6 @@
 
 
-@enum mjtWarning begin             # warning types
+@enum mjtWarning::Cint begin             # warning types
    WARN_INERTIA      = 0         # (near) singular inertia matrix
    WARN_CONTACTFULL              # too many contacts in contact list
    WARN_CNSTRFULL                # too many constraints
@@ -14,7 +14,7 @@
 end
 
 
-@enum mjtTimer begin
+@enum mjtTimer::Cint begin
    # main api
    TIMER_STEP        = 0         # step
    TIMER_FORWARD                 # forward
@@ -217,6 +217,8 @@ mutable struct mjData
    cacc::Ptr{mjtNum}
    cfrc_int::Ptr{mjtNum}
    cfrc_ext::Ptr{mjtNum}
+
+   mjData() = new()
 end
 
 # Callback function types TODO

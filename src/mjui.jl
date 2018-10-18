@@ -36,14 +36,14 @@ const KEY_F11       = 300
 const KEY_F12       = 301
 
 
-@enum mjtButton begin        # mouse button
+@enum mjtButton::Cint begin        # mouse button
    BUTTON_NONE = 0          # no button
    BUTTON_LEFT              # left button
    BUTTON_RIGHT             # right button
    BUTTON_MIDDLE             # middle button
 end
 
-@enum mjtEvent begin         # mouse and keyboard event type
+@enum mjtEvent::Cint begin         # mouse and keyboard event type
    EVENT_NONE = 0           # no event
    EVENT_MOVE               # mouse move
    EVENT_PRESS              # mouse button press
@@ -53,7 +53,7 @@ end
    EVENT_RESIZE              # resize
 end
 
-@enum mjtItem begin          # UI item type
+@enum mjtItem::Cint begin          # UI item type
    ITEM_END = -2            # end of definition list (not an item)
    ITEM_SECTION = -1        # section (not an item)
    ITEM_SEPARATOR = 0       # separator

@@ -27,20 +27,26 @@ Higher level interfacing tries to make it easier to manipulate data in the mjMod
 m, d = mj.mapmujoco(pm, pd) # wrap with our jlModel, jlData types
 
 # we can manipulate data in the raw C structs now
-nq = mj.get(m, :nq)
-mj.set(m, :nq, -28)
-@assert mj.get(m, :nq) == -28
+time = d.d[].time
+d.d[].time = 1.0
+@assert d.d[].time == 1.0
 
 mj.set(m, :opt, :timestep, -0.002) # we can traverse structs-within-structs
 @assert mj.get(m, :opt, :timestep) == -0.002
+m.m[].opt.timestep = 0.002
+@assert mj.get(m, :opt, :timestep) == 0.002
 
 d.qpos[:] = rand(nq) # d.qpos is a jlData Vector; free to access and maps to raw pointer
 
-# some functions work on the jlModel and jlData types
+# functions work on the jlModel and jlData types
 mj_step(m, d)
 mj_resetData(m, d)
 
-mj_step(m.m, d.d) # our wrapped functions can take in the convenience struct or the raw pointers
+mj_step(m.m, d.d) # our wrapped functions can take in the convenience struct or the Ref pointers
+
+# MuJoCo convenience functions are understood to use 0-based indexing
+id = mj_name2id(m, mj.OBJ_GEOM, "floor") # for humanoid.xml
+@assert id == 0
 ```
 
 # Installation
@@ -51,8 +57,12 @@ julia> Pkg.build("MuJoCo")
 ```
 MuJoCo v2.00 should be installed automatically through Julia Pkg. You will need a mjkey.txt license file, and your system should set the environment variable "MUJOCO_KEY_PATH" to be the path to your mjkey.txt file.
 
-Currently, this package is untested in Windows, or OSX.
+Currently, this package is less on Windows and OSX.
 
 # Examples
 Temporary examples can be found in test suite.
+
+# Todo
+Test using @cfunctions to pass Julia code to MuJoCo callback functions
+Test / contemplate using 
 
