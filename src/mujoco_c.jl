@@ -47,6 +47,7 @@ global const VISSTRING     = ["Convex Hull"     "0"  "H";
                               "Range Finder"    "1"  "Y";
                               "Constraint"      "0"  "N";
                               "Inertia"         "0"  "I";
+                              "SCL Inertia"     "0"  "S";
                               "Perturb Force"   "0"  "B";
                               "Perturb Object"  "1"  "O";
                               "Contact Point"   "0"  "C";

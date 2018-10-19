@@ -168,8 +168,8 @@ function get(d::jlData, field::Symbol)
 end
 function get(p::Ptr{T}, field::Symbol) where {T}
    f_off, f_type = mjstructs[T][field]
-   pntr = myconvert(UInt64, d.d) + f_off
-   return unsafe_load(pntr, 1)
+   pntr = Ptr{f_type}(p)
+   return unsafe_load(pntr+f_off, 1)
 end
 function get(p::Ptr{T}, field::Symbol, i::Int) where {T}
    f_off, f_type = mjstructs[T][field]

@@ -263,4 +263,6 @@ mutable struct mjvFigure
    yaxispixel::SVector{2, Cint}
    xaxisdata::SVector{2, Cint}
    yaxisdata::SVector{2, Cint}
+
+   mjvFigure() = new()
 end
