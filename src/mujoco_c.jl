@@ -75,7 +75,7 @@ const PR{T} = Union{Ptr{T},Ref{T}}
 import Base.unsafe_convert, Base.cconvert
 cconvert(::Type{Ptr{mjModel}}, m::jlModel) = unsafe_convert(Ptr{mjModel}, m.m)
 cconvert(::Type{Ptr{mjData}}, d::jlData) = unsafe_convert(Ptr{mjData}, d.d)
-const MODEL = Union{Ptr{mjModel},Ref{mjModel},jlModel}
+const MODEL = Union{Ptr{mjModel},Ref{mjModel},jlModel,Ptr{Nothing}}
 const DATA = Union{Ptr{mjData},Ref{mjData},jlData}
 
 

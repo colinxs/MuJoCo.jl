@@ -99,5 +99,7 @@ mutable struct mjrContext
    windowStereo::Cint
    windowDoublebuffer::Cint
    currentBuffer::Cint
+   
+   mjrContext() = new()
 end
 

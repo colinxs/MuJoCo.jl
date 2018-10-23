@@ -65,4 +65,4 @@ Temporary examples can be found in test suite.
 # Todo
 Test using @cfunctions to pass Julia code to MuJoCo callback functions
 Test / contemplate making sure all conversions from 0-based to 1-based indexing is correct?
-
+make convert functions that convert enums to Ints or Int32s
