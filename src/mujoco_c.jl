@@ -788,12 +788,12 @@ end
 """Select geom or skin with mouse, return bodyid; -1: none selected."""
 function mjv_select(m::MODEL,d::DATA,vopt::PR{mjvOption},
                     aspectratio::mjtNum, relx::mjtNum, rely::mjtNum,
-                    scn::PR{mjvScene}, selpnt::PV{mjtNum}, geomid::PV{Integer}, skinid::PV{Integer})
+                    scn::PR{mjvScene}, selpnt::PV{mjtNum}, geomid::Integer, skinid::Integer)
    ccall((:mjv_select,libmujoco),Cint,(Ptr{mjModel},Ptr{mjData},Ptr{mjvOption},
                                        mjtNum,mjtNum,mjtNum,
                                        Ptr{mjvScene},Ptr{mjtNum},Ptr{Cint},Ptr{Cint}),
          m,d,vopt,aspectratio,relx,rely,
-         scn,selpnt,geomid,skinid)
+         scn,selpnt,Ref(geomid),Ref(skinid))
 end
 
 

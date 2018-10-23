@@ -223,7 +223,7 @@ mutable struct mjvScene
    rotate::SVector{4, Cfloat}
    scale::Cfloat
    stereo::Cint
-   flags::SVector{5, mjtByte}
+   flags::SVector{Int(NRNDFLAG), mjtByte}
 
    mjvScene() = new()
 end
