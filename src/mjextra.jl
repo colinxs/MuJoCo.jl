@@ -1,56 +1,16 @@
 
-#=
-function offsetof(type_, member::Symbol)
-  for (i, item) in enumerate(fieldnames(type_))
-    if item == member
-      return fieldoffset(type_, i)
-    end
-    #print(typeof(i))
-  end
-  # what to do when symbol not in type_?
-  throw("$type_ has no member named $member")
-end
-
-function GetStructType(type_, member::Symbol)
-  for (i, item) in enumerate(fieldnames(type_))
-    if item == member
-      return fieldtype(type_, i)
-    end
-    #print(typeof(i))
-  end
-  # what to do when symbol not in type_?
-  throw("$type_ has no member named $member")
-end
-
-function Base.getindex(ptr::Ptr{T}, s::Symbol) where {T}
-  address = UInt(ptr)
-  if address == 0
-    throw("Base.getindex(Ptr::{$T}) would dereference a NULL pointer")
-  end
-  offset = offsetof(T, s)
-  fieldtype = GetStructType(T, s)
-  fieldptr = Ptr{fieldtype}(address + offset)
-  #log("Symbol $s $ptrtype address=$address offset=$offset fieldtype=$fieldtype ptr=$ptr fieldptr=$fieldptr\n")
-  #return 123
-  return unsafe_load(fieldptr)
-end
-
-function Base.setindex!(ptr::Ptr{T}, value, s::Symbol) where {T}
-  address = UInt(ptr)
-  if address == 0
-    throw("Base.setindex!(Ptr) would write to a NULL pointer")
-  end
-  offset = offsetof(T, s)
-  fieldtype = GetStructType(T, s)
-  fieldptr = Ptr{fieldtype}(address + offset)
-  #log("Symbol $s $ptrtype address=$address offset=$offset fieldtype=$fieldtype ptr=$ptr fieldptr=$fieldptr\n")
-  unsafe_store!(fieldptr, value)
-  return value
-end
-=#
-
 # returns a julia centric version of mujoco's model and data fields
 # that allows direct access to Ptr array fields as julia vectors
+function wrap_array(p, s1::Int, s2::Int, f_type)
+   len = s1 * s2 
+   raw = unsafe_wrap(Array, p, len)
+
+   if f_type == Matrix{eltype(f_type)}
+      raw = reshape(raw, s2, s1)
+   end
+   return raw
+end
+
 function mapmodel(pm::Ptr{mjModel})
    c_model= unsafe_load(pm)
    mapmodel(c_model, pm)
@@ -68,21 +28,13 @@ function mapmodel(c_model::mjModel, pm::Ptr{mjModel})
          m_off, m_type = jminfo[f]
          push!(margs, m_type(0) )
       else
-         raw = wrap_array(getfield(c_model, f), Int(m_sizes[f][1]), Int(m_sizes[f][2]))
+         raw = wrap_array(getfield(c_model, f), Int(m_sizes[f][1]), Int(m_sizes[f][2]), fieldtype(jlModel, f))
          push!(margs, raw)
       end
    end
    return jlModel(Ref(unsafe_load(pm)), margs...)
 end
-function wrap_array(p, s1::Int, s2::Int)
-   len = s1 * s2 
-   raw = unsafe_wrap(Array, p, len)
 
-   if s2 > 1
-      raw = reshape(raw, s2, s1)
-   end
-   return raw
-end
 function mapdata(pm::Ptr{mjModel}, pd::Ptr{mjData}) 
    c_model = unsafe_load(pm)
    mapdata(c_model, pd)
@@ -95,7 +47,7 @@ function mapdata(c_model::mjModel, pd::Ptr{mjData})
    d_fields = fieldnames(jlData)[2:end] # drop :d pointer
    d_sizes = getdatasize(c_model, c_data)
    for f in d_fields
-      raw = wrap_array(getfield(c_data, f), Int(d_sizes[f][1]), Int(d_sizes[f][2]))
+      raw = wrap_array(getfield(c_data, f), Int(d_sizes[f][1]), Int(d_sizes[f][2]), fieldtype(jlData, f))
       push!(dargs, raw)
    end
    return jlData(Ref(unsafe_load(pd)), dargs...)
