@@ -56,7 +56,7 @@ if Sys.islinux()
                           (:libGL, :libGL),
                           (:libmujoco, :libmujoco)])
 elseif Sys.isapple()
-   mujoco_osx = library_dependency("libmujoco", aliases=["libmujoco200nogl", "libmujoco200nogl.dylib"])
+   mujoco_osx = library_dependency("libmujoco", aliases=["libmujoco200", "libmujoco200.dylib"])
    url = baseurl*"macos.zip"
 
    download_extract(url, unpack, "_macos/")
