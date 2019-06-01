@@ -2,7 +2,7 @@
 # TODO overload print/show/display function to not display model and data
 
 struct jlModel
-   m::Ref{mjModel}
+   m::Base.RefValue{mjModel}
 
    qpos0::Vector{mjtNum}
    qpos_spring::Vector{mjtNum}
@@ -293,7 +293,7 @@ struct jlModel
 end
 
 struct jlData
-   d::Ref{mjData} # point to c struct
+   d::Base.RefValue{mjData} # point to c struct
 
    stack::Vector{mjtNum}
 

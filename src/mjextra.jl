@@ -2,7 +2,7 @@
 # returns a julia centric version of mujoco's model and data fields
 # that allows direct access to Ptr array fields as julia vectors
 function wrap_array(p, s1::Int, s2::Int, f_type)
-   len = s1 * s2 
+   len = s1 * s2
    raw = unsafe_wrap(Array, p, len)
 
    if f_type == Matrix{eltype(f_type)}
@@ -32,14 +32,14 @@ function mapmodel(c_model::mjModel, pm::Ptr{mjModel})
          push!(margs, raw)
       end
    end
-   return jlModel(Ref(unsafe_load(pm)), margs...)
+   return jlModel(Base.RefValue(unsafe_load(pm)), margs...)
 end
 
-function mapdata(pm::Ptr{mjModel}, pd::Ptr{mjData}) 
+function mapdata(pm::Ptr{mjModel}, pd::Ptr{mjData})
    c_model = unsafe_load(pm)
    mapdata(c_model, pd)
 end
-function mapdata(c_model::mjModel, pd::Ptr{mjData}) 
+function mapdata(c_model::mjModel, pd::Ptr{mjData})
    c_data = unsafe_load(pd)
 
    dargs = Vector{Any}()
@@ -50,10 +50,10 @@ function mapdata(c_model::mjModel, pd::Ptr{mjData})
       raw = wrap_array(getfield(c_data, f), Int(d_sizes[f][1]), Int(d_sizes[f][2]), fieldtype(jlData, f))
       push!(dargs, raw)
    end
-   return jlData(Ref(unsafe_load(pd)), dargs...)
+   return jlData(Base.RefValue(unsafe_load(pd)), dargs...)
 end
 
-function mapmujoco(pm::Ptr{mjModel}, pd::Ptr{mjData}) 
+function mapmujoco(pm::Ptr{mjModel}, pd::Ptr{mjData})
    c_model = unsafe_load(pm)
    return mapmodel(c_model, pm), mapdata(c_model, pd)
 end
@@ -92,8 +92,8 @@ const mjstructs = Dict(mjContact     => structinfo(mjContact),
                        mjvFigure     => structinfo(mjvFigure))
 
 # access mujoco struct fields through the julia version of model and data
-myconvert(T, m::Ref{mjModel})::T = convert(T, unsafe_convert(Ptr{mjModel}, m))
-myconvert(T, d::Ref{mjData})::T = convert(T, unsafe_convert(Ptr{mjData}, d))
+myconvert(T, m::Base.RefValue{mjModel})::T = convert(T, unsafe_convert(Ptr{mjModel}, m))
+myconvert(T, d::Base.RefValue{mjData})::T = convert(T, unsafe_convert(Ptr{mjData}, d))
 addr_to_val(T::Type{Float64}, p::UInt64)::Float64 = unsafe_load(convert(Ptr{Float64}, p))
 addr_to_val(T::Type{Float32}, p::UInt64)::Float32 = unsafe_load(convert(Ptr{Float32}, p))
 addr_to_val(T::Type{Int32},   p::UInt64)::Int32   = unsafe_load(convert(Ptr{Int32},   p))
@@ -162,15 +162,15 @@ end
 # mutate mujoco struct fields through the julia version of model and data
 #function set(d::jlData, field::Symbol, val::Union{Integer, mjtNum})
 #   f_off, f_type = dinfo[field]
-#   update_ptr(d.d, f_off, convert(f_type, val)) 
+#   update_ptr(d.d, f_off, convert(f_type, val))
 #end
 #function set(m::jlModel, field::Symbol, val::Union{Integer, mjtNum})
 #   f_off, f_type = minfo[field]
-#   update_ptr(m.m, f_off, convert(f_type, val)) 
+#   update_ptr(m.m, f_off, convert(f_type, val))
 #end
 function set(p::Ptr{T}, field::Symbol, val::Union{Integer, mjtNum, SVector}) where T
    f_off, f_type = mjstructs[T][field]
-   update_ptr(p, f_off, convert(f_type, val)) 
+   update_ptr(p, f_off, convert(f_type, val))
 end
 function set(p::Ptr{T}, field::Symbol, val, i::Int) where T # write to element in SVector
    f_off, f_type = mjstructs[T][field]
@@ -195,7 +195,7 @@ function set(p::Ptr{T}, field::Symbol, val, i::Int, j::Int) where T # write to e
    unsafe_store!(convert(Ptr{ET}, idx), v)
 end
 
-# set struct within model struct 
+# set struct within model struct
 function set(m::jlModel, fstruct::Symbol, field::Symbol, val::Union{Integer, mjtNum, SVector})
    s_off, s_type = minfo[fstruct]
    @assert s_type in (mjOption, mjVisual, mjStatistic)
@@ -206,7 +206,7 @@ end
 function set(p::Ptr{T}, fstruct::Symbol, field::Symbol, val::Union{Integer, mjtNum}) where T
    s_off, s_type = mjstructs[T][fstruct]
    f_off, f_type = mjstructs[s_type][field]
-   update_ptr(p, f_off, convert(f_type, val)) 
+   update_ptr(p, f_off, convert(f_type, val))
 end
 
 #################################### Name Wrappers

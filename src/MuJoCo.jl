@@ -22,7 +22,7 @@ function teardown()
    mj_deactivate()
 end
 
-const ACTIVATED = Ref(false)
+const ACTIVATED = Base.RefValue(false)
 isactivated() = ACTIVATED[]
 function __init__()
    if !isactivated()
