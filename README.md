@@ -31,12 +31,7 @@ time = d.d[].time
 d.d[].time = 1.0
 @assert d.d[].time == 1.0
 
-mj.set(m, :opt, :timestep, -0.002) # we can traverse structs-within-structs
-@assert mj.get(m, :opt, :timestep) == -0.002
-m.m[].opt.timestep = 0.002
-@assert mj.get(m, :opt, :timestep) == 0.002
-
-d.qpos[:] = rand(nq) # d.qpos is a jlData Vector; free to access and maps to raw pointer
+d.qpos[:] = rand(m.m[].nq) # d.qpos is a jlData Vector; free to access and maps to raw pointer
 
 # functions work on the jlModel and jlData types
 mj_step(m, d)

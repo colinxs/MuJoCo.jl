@@ -4,402 +4,402 @@
 struct jlModel
    m::Ref{mjModel}
 
-   qpos0::Array{mjtNum}
-   qpos_spring::Array{mjtNum}
-   body_parentid::Array{Cint}
-   body_rootid::Array{Cint}
-   body_weldid::Array{Cint}
-   body_mocapid::Array{Cint}
-   body_jntnum::Array{Cint}
-   body_jntadr::Array{Cint}
-   body_dofnum::Array{Cint}
-   body_dofadr::Array{Cint}
-   body_geomnum::Array{Cint}
-   body_geomadr::Array{Cint}
-   body_simple::Array{mjtByte}
-   body_sameframe::Array{mjtByte}
-   body_pos::Array{mjtNum}
-   body_quat::Array{mjtNum}
-   body_ipos::Array{mjtNum}
-   body_iquat::Array{mjtNum}
-   body_mass::Array{mjtNum}
-   body_subtreemass::Array{mjtNum}
-   body_inertia::Array{mjtNum}
-   body_invweight0::Array{mjtNum}
-   body_user::Array{mjtNum}
-   jnt_type::Array{Cint}
-   jnt_qposadr::Array{Cint}
-   jnt_dofadr::Array{Cint}
-   jnt_bodyid::Array{Cint}
-   jnt_group::Array{Cint}
-   jnt_limited::Array{mjtByte}
-   jnt_solref::Array{mjtNum}
-   jnt_solimp::Array{mjtNum}
-   jnt_pos::Array{mjtNum}
-   jnt_axis::Array{mjtNum}
-   jnt_stiffness::Array{mjtNum}
-   jnt_range::Array{mjtNum}
-   jnt_margin::Array{mjtNum}
-   jnt_user::Array{mjtNum}
+   qpos0::Vector{mjtNum}
+   qpos_spring::Vector{mjtNum}
+   body_parentid::Vector{Cint}
+   body_rootid::Vector{Cint}
+   body_weldid::Vector{Cint}
+   body_mocapid::Vector{Cint}
+   body_jntnum::Vector{Cint}
+   body_jntadr::Vector{Cint}
+   body_dofnum::Vector{Cint}
+   body_dofadr::Vector{Cint}
+   body_geomnum::Vector{Cint}
+   body_geomadr::Vector{Cint}
+   body_simple::Vector{mjtByte}
+   body_sameframe::Vector{mjtByte}
+   body_pos::Matrix{mjtNum}
+   body_quat::Matrix{mjtNum}
+   body_ipos::Matrix{mjtNum}
+   body_iquat::Matrix{mjtNum}
+   body_mass::Vector{mjtNum}
+   body_subtreemass::Vector{mjtNum}
+   body_inertia::Matrix{mjtNum}
+   body_invweight0::Matrix{mjtNum}
+   body_user::Matrix{mjtNum}
+   jnt_type::Vector{Cint}
+   jnt_qposadr::Vector{Cint}
+   jnt_dofadr::Vector{Cint}
+   jnt_bodyid::Vector{Cint}
+   jnt_group::Vector{Cint}
+   jnt_limited::Vector{mjtByte}
+   jnt_solref::Matrix{mjtNum}
+   jnt_solimp::Matrix{mjtNum}
+   jnt_pos::Matrix{mjtNum}
+   jnt_axis::Matrix{mjtNum}
+   jnt_stiffness::Vector{mjtNum}
+   jnt_range::Matrix{mjtNum}
+   jnt_margin::Vector{mjtNum}
+   jnt_user::Matrix{mjtNum}
 
-   dof_bodyid::Array{Cint}
-   dof_jntid::Array{Cint}
-   dof_parentid::Array{Cint}
-   dof_Madr::Array{Cint}
-   dof_simplenum::Array{Cint}
-   dof_solref::Array{mjtNum}
-   dof_solimp::Array{mjtNum}
-   dof_frictionloss::Array{mjtNum}
-   dof_armature::Array{mjtNum}
-   dof_damping::Array{mjtNum}
-   dof_invweight0::Array{mjtNum}
-   dof_M0::Array{mjtNum}
+   dof_bodyid::Vector{Cint}
+   dof_jntid::Vector{Cint}
+   dof_parentid::Vector{Cint}
+   dof_Madr::Vector{Cint}
+   dof_simplenum::Vector{Cint}
+   dof_solref::Matrix{mjtNum}
+   dof_solimp::Matrix{mjtNum}
+   dof_frictionloss::Vector{mjtNum}
+   dof_armature::Vector{mjtNum}
+   dof_damping::Vector{mjtNum}
+   dof_invweight0::Vector{mjtNum}
+   dof_M0::Vector{mjtNum}
 
-   geom_type::Array{Cint}
-   geom_contype::Array{Cint}
-   geom_conaffinity::Array{Cint}
-   geom_condim::Array{Cint}
-   geom_bodyid::Array{Cint}
-   geom_dataid::Array{Cint}
-   geom_matid::Array{Cint}
-   geom_group::Array{Cint}
-   geom_priority::Array{Cint}
-   geom_sameframe::Array{mjtByte}
-   geom_solmix::Array{mjtNum}
-   geom_solref::Array{mjtNum}
-   geom_solimp::Array{mjtNum}
-   geom_size::Array{mjtNum}
-   geom_rbound::Array{mjtNum}
-   geom_pos::Array{mjtNum}
-   geom_quat::Array{mjtNum}
-   geom_friction::Array{mjtNum}
-   geom_margin::Array{mjtNum}
-   geom_gap::Array{mjtNum}
-   geom_user::Array{mjtNum}
-   geom_rgba::Array{Cfloat}
+   geom_type::Vector{Cint}
+   geom_contype::Vector{Cint}
+   geom_conaffinity::Vector{Cint}
+   geom_condim::Vector{Cint}
+   geom_bodyid::Vector{Cint}
+   geom_dataid::Vector{Cint}
+   geom_matid::Vector{Cint}
+   geom_group::Vector{Cint}
+   geom_priority::Vector{Cint}
+   geom_sameframe::Vector{mjtByte}
+   geom_solmix::Vector{mjtNum}
+   geom_solref::Matrix{mjtNum}
+   geom_solimp::Matrix{mjtNum}
+   geom_size::Matrix{mjtNum}
+   geom_rbound::Vector{mjtNum}
+   geom_pos::Matrix{mjtNum}
+   geom_quat::Matrix{mjtNum}
+   geom_friction::Matrix{mjtNum}
+   geom_margin::Vector{mjtNum}
+   geom_gap::Vector{mjtNum}
+   geom_user::Matrix{mjtNum}
+   geom_rgba::Matrix{Cfloat}
 
-   site_type::Array{Cint}
-   site_bodyid::Array{Cint}
-   site_matid::Array{Cint}
-   site_group::Array{Cint}
-   site_sameframe::Array{mjtByte}
-   site_size::Array{mjtNum}
-   site_pos::Array{mjtNum}
-   site_quat::Array{mjtNum}
-   site_user::Array{mjtNum}
-   site_rgba::Array{Cfloat}
+   site_type::Vector{Cint}
+   site_bodyid::Vector{Cint}
+   site_matid::Vector{Cint}
+   site_group::Vector{Cint}
+   site_sameframe::Vector{mjtByte}
+   site_size::Matrix{mjtNum}
+   site_pos::Matrix{mjtNum}
+   site_quat::Matrix{mjtNum}
+   site_user::Matrix{mjtNum}
+   site_rgba::Matrix{Cfloat}
 
-   cam_mode::Array{Cint}
-   cam_bodyid::Array{Cint}
-   cam_targetbodyid::Array{Cint}
-   cam_pos::Array{mjtNum}
-   cam_quat::Array{mjtNum}
-   cam_poscom0::Array{mjtNum}
-   cam_pos0::Array{mjtNum}
-   cam_mat0::Array{mjtNum}
-   cam_fovy::Array{mjtNum}
-   cam_ipd::Array{mjtNum}
-   cam_user::Array{mjtNum}
+   cam_mode::Vector{Cint}
+   cam_bodyid::Vector{Cint}
+   cam_targetbodyid::Vector{Cint}
+   cam_pos::Matrix{mjtNum}
+   cam_quat::Matrix{mjtNum}
+   cam_poscom0::Matrix{mjtNum}
+   cam_pos0::Matrix{mjtNum}
+   cam_mat0::Matrix{mjtNum}
+   cam_fovy::Vector{mjtNum}
+   cam_ipd::Vector{mjtNum}
+   cam_user::Matrix{mjtNum}
 
-   light_mode::Array{Cint}
-   light_bodyid::Array{Cint}
-   light_targetbodyid::Array{Cint}
-   light_directional::Array{mjtByte}
-   light_castshadow::Array{mjtByte}
-   light_active::Array{mjtByte}
-   light_pos::Array{mjtNum}
-   light_dir::Array{mjtNum}
-   light_poscom0::Array{mjtNum}
-   light_pos0::Array{mjtNum}
-   light_dir0::Array{mjtNum}
-   light_attenuation::Array{Cfloat}
-   light_cutoff::Array{Cfloat}
-   light_exponent::Array{Cfloat}
-   light_ambient::Array{Cfloat}
-   light_diffuse::Array{Cfloat}
-   light_specular::Array{Cfloat}
+   light_mode::Vector{Cint}
+   light_bodyid::Vector{Cint}
+   light_targetbodyid::Vector{Cint}
+   light_directional::Vector{mjtByte}
+   light_castshadow::Vector{mjtByte}
+   light_active::Vector{mjtByte}
+   light_pos::Matrix{mjtNum}
+   light_dir::Matrix{mjtNum}
+   light_poscom0::Matrix{mjtNum}
+   light_pos0::Matrix{mjtNum}
+   light_dir0::Matrix{mjtNum}
+   light_attenuation::Matrix{Cfloat}
+   light_cutoff::Vector{Cfloat}
+   light_exponent::Vector{Cfloat}
+   light_ambient::Matrix{Cfloat}
+   light_diffuse::Matrix{Cfloat}
+   light_specular::Matrix{Cfloat}
 
-   mesh_vertadr::Array{Cint}
-   mesh_vertnum::Array{Cint}
-   mesh_texcoordadr::Array{Cint}
-   mesh_faceadr::Array{Cint}
-   mesh_facenum::Array{Cint}
-   mesh_graphadr::Array{Cint}
-   mesh_vert::Array{Cfloat}
-   mesh_normal::Array{Cfloat}
-   mesh_texcoord::Array{Cfloat}
-   mesh_face::Array{Cint}
-   mesh_graph::Array{Cint}
+   mesh_vertadr::Vector{Cint}
+   mesh_vertnum::Vector{Cint}
+   mesh_texcoordadr::Vector{Cint}
+   mesh_faceadr::Vector{Cint}
+   mesh_facenum::Vector{Cint}
+   mesh_graphadr::Vector{Cint}
+   mesh_vert::Matrix{Cfloat}
+   mesh_normal::Matrix{Cfloat}
+   mesh_texcoord::Matrix{Cfloat}
+   mesh_face::Matrix{Cint}
+   mesh_graph::Vector{Cint}
 
-   skin_matid::Array{Cint}
-   skin_rgba::Array{Float32}
-   skin_inflate::Array{Float32}
-   skin_vertadr::Array{Cint}
-   skin_vertnum::Array{Cint}
-   skin_texcoordadr::Array{Cint}
-   skin_faceadr::Array{Cint}
-   skin_facenum::Array{Cint}
-   skin_boneadr::Array{Cint}
-   skin_bonenum::Array{Cint}
-   skin_vert::Array{Float32}
-   skin_texcoord::Array{Float32}
-   skin_face::Array{Cint}
-   skin_bonevertadr::Array{Cint}
-   skin_bonevertnum::Array{Cint}
-   skin_bonebindpos::Array{Float32}
-   skin_bonebindquat::Array{Float32}
-   skin_bonebodyid::Array{Cint}
-   skin_bonevertid::Array{Cint}
-   skin_bonevertweight::Array{Float32}
+   skin_matid::Vector{Cint}
+   skin_rgba::Matrix{Float32}
+   skin_inflate::Vector{Float32}
+   skin_vertadr::Vector{Cint}
+   skin_vertnum::Vector{Cint}
+   skin_texcoordadr::Vector{Cint}
+   skin_faceadr::Vector{Cint}
+   skin_facenum::Vector{Cint}
+   skin_boneadr::Vector{Cint}
+   skin_bonenum::Vector{Cint}
+   skin_vert::Matrix{Float32}
+   skin_texcoord::Matrix{Float32}
+   skin_face::Matrix{Cint}
+   skin_bonevertadr::Vector{Cint}
+   skin_bonevertnum::Vector{Cint}
+   skin_bonebindpos::Matrix{Float32}
+   skin_bonebindquat::Matrix{Float32}
+   skin_bonebodyid::Vector{Cint}
+   skin_bonevertid::Vector{Cint}
+   skin_bonevertweight::Vector{Float32}
 
-   hfield_size::Array{mjtNum}
-   hfield_nrow::Array{Cint}
-   hfield_ncol::Array{Cint}
-   hfield_adr::Array{Cint}
-   hfield_data::Array{Cfloat}
+   hfield_size::Matrix{mjtNum}
+   hfield_nrow::Vector{Cint}
+   hfield_ncol::Vector{Cint}
+   hfield_adr::Vector{Cint}
+   hfield_data::Vector{Cfloat}
 
-   tex_type::Array{Cint}
-   tex_height::Array{Cint}
-   tex_width::Array{Cint}
-   tex_adr::Array{Cint}
-   tex_rgb::Array{mjtByte}
+   tex_type::Vector{Cint}
+   tex_height::Vector{Cint}
+   tex_width::Vector{Cint}
+   tex_adr::Vector{Cint}
+   tex_rgb::Vector{mjtByte}
 
-   mat_texid::Array{Cint}
-   mat_texuniform::Array{mjtByte}
-   mat_texrepeat::Array{Cfloat}
-   mat_emission::Array{Cfloat}
-   mat_specular::Array{Cfloat}
-   mat_shininess::Array{Cfloat}
-   mat_reflectance::Array{Cfloat}
-   mat_rgba::Array{Cfloat}
+   mat_texid::Vector{Cint}
+   mat_texuniform::Vector{mjtByte}
+   mat_texrepeat::Matrix{Cfloat}
+   mat_emission::Vector{Cfloat}
+   mat_specular::Vector{Cfloat}
+   mat_shininess::Vector{Cfloat}
+   mat_reflectance::Vector{Cfloat}
+   mat_rgba::Matrix{Cfloat}
 
-   pair_dim::Array{Cint}
-   pair_geom1::Array{Cint}
-   pair_geom2::Array{Cint}
-   pair_signature::Array{Cint}
-   pair_solref::Array{mjtNum}
-   pair_solimp::Array{mjtNum}
-   pair_margin::Array{mjtNum}
-   pair_gap::Array{mjtNum}
-   pair_friction::Array{mjtNum}
+   pair_dim::Vector{Cint}
+   pair_geom1::Vector{Cint}
+   pair_geom2::Vector{Cint}
+   pair_signature::Vector{Cint}
+   pair_solref::Matrix{mjtNum}
+   pair_solimp::Matrix{mjtNum}
+   pair_margin::Vector{mjtNum}
+   pair_gap::Vector{mjtNum}
+   pair_friction::Matrix{mjtNum}
 
-   exclude_signature::Array{Cint}
+   exclude_signature::Vector{Cint}
 
-   eq_type::Array{Cint}
-   eq_obj1id::Array{Cint}
-   eq_obj2id::Array{Cint}
-   eq_active::Array{mjtByte}
-   eq_solref::Array{mjtNum}
-   eq_solimp::Array{mjtNum}
-   eq_data::Array{mjtNum}
+   eq_type::Vector{Cint}
+   eq_obj1id::Vector{Cint}
+   eq_obj2id::Vector{Cint}
+   eq_active::Vector{mjtByte}
+   eq_solref::Matrix{mjtNum}
+   eq_solimp::Matrix{mjtNum}
+   eq_data::Matrix{mjtNum}
 
-   tendon_adr::Array{Cint}
-   tendon_num::Array{Cint}
-   tendon_matid::Array{Cint}
-   tendon_group::Array{Cint}
-   tendon_limited::Array{mjtByte}
-   tendon_width::Array{mjtNum}
-   tendon_solref_lim::Array{mjtNum}
-   tendon_solimp_lim::Array{mjtNum}
-   tendon_solref_fri::Array{mjtNum}
-   tendon_solimp_fri::Array{mjtNum}
-   tendon_range::Array{mjtNum}
-   tendon_margin::Array{mjtNum}
-   tendon_stiffness::Array{mjtNum}
-   tendon_damping::Array{mjtNum}
-   tendon_frictionloss::Array{mjtNum}
-   tendon_lengthspring::Array{mjtNum}
-   tendon_length0::Array{mjtNum}
-   tendon_invweight0::Array{mjtNum}
-   tendon_user::Array{mjtNum}
-   tendon_rgba::Array{Cfloat}
+   tendon_adr::Vector{Cint}
+   tendon_num::Vector{Cint}
+   tendon_matid::Vector{Cint}
+   tendon_group::Vector{Cint}
+   tendon_limited::Vector{mjtByte}
+   tendon_width::Vector{mjtNum}
+   tendon_solref_lim::Matrix{mjtNum}
+   tendon_solimp_lim::Matrix{mjtNum}
+   tendon_solref_fri::Matrix{mjtNum}
+   tendon_solimp_fri::Matrix{mjtNum}
+   tendon_range::Matrix{mjtNum}
+   tendon_margin::Vector{mjtNum}
+   tendon_stiffness::Vector{mjtNum}
+   tendon_damping::Vector{mjtNum}
+   tendon_frictionloss::Vector{mjtNum}
+   tendon_lengthspring::Vector{mjtNum}
+   tendon_length0::Vector{mjtNum}
+   tendon_invweight0::Vector{mjtNum}
+   tendon_user::Matrix{mjtNum}
+   tendon_rgba::Matrix{Cfloat}
 
-   wrap_type::Array{Cint}
-   wrap_objid::Array{Cint}
-   wrap_prm::Array{mjtNum}
+   wrap_type::Vector{Cint}
+   wrap_objid::Vector{Cint}
+   wrap_prm::Vector{mjtNum}
 
-   actuator_trntype::Array{Cint}
-   actuator_dyntype::Array{Cint}
-   actuator_gaintype::Array{Cint}
-   actuator_biastype::Array{Cint}
-   actuator_trnid::Array{Cint}
-   actuator_group::Array{Cint}
-   actuator_ctrllimited::Array{mjtByte}
-   actuator_forcelimited::Array{mjtByte}
-   actuator_dynprm::Array{mjtNum}
-   actuator_gainprm::Array{mjtNum}
-   actuator_biasprm::Array{mjtNum}
-   actuator_ctrlrange::Array{mjtNum}
-   actuator_forcerange::Array{mjtNum}
-   actuator_gear::Array{mjtNum}
-   actuator_cranklength::Array{mjtNum}
-   actuator_acc0::Array{mjtNum}
-   actuator_length0::Array{mjtNum}
-   actuator_lengthrange::Array{mjtNum}
-   actuator_user::Array{mjtNum}
+   actuator_trntype::Vector{Cint}
+   actuator_dyntype::Vector{Cint}
+   actuator_gaintype::Vector{Cint}
+   actuator_biastype::Vector{Cint}
+   actuator_trnid::Matrix{Cint}
+   actuator_group::Vector{Cint}
+   actuator_ctrllimited::Vector{mjtByte}
+   actuator_forcelimited::Vector{mjtByte}
+   actuator_dynprm::Matrix{mjtNum}
+   actuator_gainprm::Matrix{mjtNum}
+   actuator_biasprm::Matrix{mjtNum}
+   actuator_ctrlrange::Matrix{mjtNum}
+   actuator_forcerange::Matrix{mjtNum}
+   actuator_gear::Matrix{mjtNum}
+   actuator_cranklength::Vector{mjtNum}
+   actuator_acc0::Vector{mjtNum}
+   actuator_length0::Vector{mjtNum}
+   actuator_lengthrange::Matrix{mjtNum}
+   actuator_user::Matrix{mjtNum}
 
-   sensor_type::Array{Cint}
-   sensor_datatype::Array{Cint}
-   sensor_needstage::Array{Cint}
-   sensor_objtype::Array{Cint}
-   sensor_objid::Array{Cint}
-   sensor_dim::Array{Cint}
-   sensor_adr::Array{Cint}
-   sensor_cutoff::Array{mjtNum}
-   sensor_noise::Array{mjtNum}
-   sensor_user::Array{mjtNum}
+   sensor_type::Vector{Cint}
+   sensor_datatype::Vector{Cint}
+   sensor_needstage::Vector{Cint}
+   sensor_objtype::Vector{Cint}
+   sensor_objid::Vector{Cint}
+   sensor_dim::Vector{Cint}
+   sensor_adr::Vector{Cint}
+   sensor_cutoff::Vector{mjtNum}
+   sensor_noise::Vector{mjtNum}
+   sensor_user::Matrix{mjtNum}
 
-   numeric_adr::Array{Cint}
-   numeric_size::Array{Cint}
-   numeric_data::Array{mjtNum}
+   numeric_adr::Vector{Cint}
+   numeric_size::Vector{Cint}
+   numeric_data::Vector{mjtNum}
 
-   text_adr::Array{Cint}
-   text_size::Array{Cint}
-   text_data::Array{UInt8}
+   text_adr::Vector{Cint}
+   text_size::Vector{Cint}
+   text_data::Vector{UInt8}
 
-   tuple_adr::Array{Cint}
-   tuple_size::Array{Cint}
-   tuple_objtype::Array{Cint}
-   tuple_objid::Array{Cint}
-   tuple_objprm::Array{mjtNum}
+   tuple_adr::Vector{Cint}
+   tuple_size::Vector{Cint}
+   tuple_objtype::Vector{Cint}
+   tuple_objid::Vector{Cint}
+   tuple_objprm::Vector{mjtNum}
 
-   key_time::Array{mjtNum}
-   key_qpos::Array{mjtNum}
-   key_qvel::Array{mjtNum}
-   key_act::Array{mjtNum}
+   key_time::Vector{mjtNum}
+   key_qpos::Matrix{mjtNum}
+   key_qvel::Matrix{mjtNum}
+   key_act::Matrix{mjtNum}
 
-   name_bodyadr::Array{Cint}
-   name_jntadr::Array{Cint}
-   name_geomadr::Array{Cint}
-   name_siteadr::Array{Cint}
-   name_camadr::Array{Cint}
-   name_lightadr::Array{Cint}
-   name_meshadr::Array{Cint}
-   name_skinadr::Array{Cint}
-   name_hfieldadr::Array{Cint}
-   name_texadr::Array{Cint}
-   name_matadr::Array{Cint}
-   name_pairadr::Array{Cint}
-   name_excludeadr::Array{Cint}
-   name_eqadr::Array{Cint}
-   name_tendonadr::Array{Cint}
-   name_actuatoradr::Array{Cint}
-   name_sensoradr::Array{Cint}
-   name_numericadr::Array{Cint}
-   name_textadr::Array{Cint}
-   name_tupleadr::Array{Cint}
-   name_keyadr::Array{Cint}
-   names::Array{UInt8}
+   name_bodyadr::Vector{Cint}
+   name_jntadr::Vector{Cint}
+   name_geomadr::Vector{Cint}
+   name_siteadr::Vector{Cint}
+   name_camadr::Vector{Cint}
+   name_lightadr::Vector{Cint}
+   name_meshadr::Vector{Cint}
+   name_skinadr::Vector{Cint}
+   name_hfieldadr::Vector{Cint}
+   name_texadr::Vector{Cint}
+   name_matadr::Vector{Cint}
+   name_pairadr::Vector{Cint}
+   name_excludeadr::Vector{Cint}
+   name_eqadr::Vector{Cint}
+   name_tendonadr::Vector{Cint}
+   name_actuatoradr::Vector{Cint}
+   name_sensoradr::Vector{Cint}
+   name_numericadr::Vector{Cint}
+   name_textadr::Vector{Cint}
+   name_tupleadr::Vector{Cint}
+   name_keyadr::Vector{Cint}
+   names::Vector{UInt8}
 end
 
 struct jlData
    d::Ref{mjData} # point to c struct
 
-   stack::Array{mjtNum}
+   stack::Vector{mjtNum}
 
-   qpos::Array{mjtNum}
-   qvel::Array{mjtNum}
-   act::Array{mjtNum}
-   qacc_warmstart::Array{mjtNum}
-   ctrl::Array{mjtNum}
-   qfrc_applied::Array{mjtNum}
-   xfrc_applied::Array{mjtNum}
-   qacc::Array{mjtNum}
-   act_dot::Array{mjtNum}
-   mocap_pos::Array{mjtNum}
-   mocap_quat::Array{mjtNum}
-   userdata::Array{mjtNum}
-   sensordata::Array{mjtNum}
+   qpos::Vector{mjtNum}
+   qvel::Vector{mjtNum}
+   act::Vector{mjtNum}
+   qacc_warmstart::Vector{mjtNum}
+   ctrl::Vector{mjtNum}
+   qfrc_applied::Vector{mjtNum}
+   xfrc_applied::Matrix{mjtNum}
+   qacc::Vector{mjtNum}
+   act_dot::Vector{mjtNum}
+   mocap_pos::Matrix{mjtNum}
+   mocap_quat::Matrix{mjtNum}
+   userdata::Vector{mjtNum}
+   sensordata::Vector{mjtNum}
 
-   xpos::Array{mjtNum}
-   xquat::Array{mjtNum}
-   xmat::Array{mjtNum}
-   xipos::Array{mjtNum}
-   ximat::Array{mjtNum}
-   xanchor::Array{mjtNum}
-   xaxis::Array{mjtNum}
-   geom_xpos::Array{mjtNum}
-   geom_xmat::Array{mjtNum}
-   site_xpos::Array{mjtNum}
-   site_xmat::Array{mjtNum}
-   cam_xpos::Array{mjtNum}
-   cam_xmat::Array{mjtNum}
-   light_xpos::Array{mjtNum}
-   light_xdir::Array{mjtNum}
+   xpos::Matrix{mjtNum}
+   xquat::Matrix{mjtNum}
+   xmat::Matrix{mjtNum}
+   xipos::Matrix{mjtNum}
+   ximat::Matrix{mjtNum}
+   xanchor::Matrix{mjtNum}
+   xaxis::Matrix{mjtNum}
+   geom_xpos::Matrix{mjtNum}
+   geom_xmat::Matrix{mjtNum}
+   site_xpos::Matrix{mjtNum}
+   site_xmat::Matrix{mjtNum}
+   cam_xpos::Matrix{mjtNum}
+   cam_xmat::Matrix{mjtNum}
+   light_xpos::Matrix{mjtNum}
+   light_xdir::Matrix{mjtNum}
 
-   subtree_com::Array{mjtNum}
-   cdof::Array{mjtNum}
-   cinert::Array{mjtNum}
-   ten_wrapadr::Array{Cint}
-   ten_wrapnum::Array{Cint}
-   ten_J_rownnz::Array{Cint}
-   ten_J_rowadr::Array{Cint}
-   ten_J_colind::Array{Cint}
-   ten_length::Array{mjtNum}
-   ten_J::Array{mjtNum}
-   wrap_obj::Array{Cint}
-   wrap_xpos::Array{mjtNum}
-   actuator_length::Array{mjtNum}
-   actuator_moment::Array{mjtNum}
+   subtree_com::Matrix{mjtNum}
+   cdof::Matrix{mjtNum}
+   cinert::Matrix{mjtNum}
+   ten_wrapadr::Vector{Cint}
+   ten_wrapnum::Vector{Cint}
+   ten_J_rownnz::Vector{Cint}
+   ten_J_rowadr::Vector{Cint}
+   ten_J_colind::Matrix{Cint}
+   ten_length::Vector{mjtNum}
+   ten_J::Matrix{mjtNum}
+   wrap_obj::Vector{Cint}
+   wrap_xpos::Matrix{mjtNum}
+   actuator_length::Vector{mjtNum}
+   actuator_moment::Matrix{mjtNum}
 
-   crb::Array{mjtNum}
-   qM::Array{mjtNum}
-   qLD::Array{mjtNum}
-   qLDiagInv::Array{mjtNum}
-   qLDiagSqrtInv::Array{mjtNum}
+   crb::Matrix{mjtNum}
+   qM::Vector{mjtNum}
+   qLD::Vector{mjtNum}
+   qLDiagInv::Vector{mjtNum}
+   qLDiagSqrtInv::Vector{mjtNum}
 
-   contact::Array{mjContact}
+   contact::Vector{mjContact}
 
-   efc_type::Array{Cint}
-   efc_id::Array{Cint}
-   efc_J_rownnz::Array{Cint}
-   efc_J_rowadr::Array{Cint}
-   efc_J_rowsuper::Array{Cint}
-   efc_J_colind::Array{Cint}
-   efc_JT_rownnz::Array{Cint}
-   efc_JT_rowadr::Array{Cint}
-   efc_JT_rowsuper::Array{Cint}
-   efc_JT_colind::Array{Cint}
-   efc_J::Array{mjtNum}
-   efc_JT::Array{mjtNum}
-   efc_pos::Array{mjtNum}
-   efc_margin::Array{mjtNum}
-   efc_frictionloss::Array{mjtNum}
-   efc_diagApprox::Array{mjtNum}
-   efc_KBIP::Array{mjtNum}
-   efc_D::Array{mjtNum}
-   efc_R::Array{mjtNum}
+   efc_type::Vector{Cint}
+   efc_id::Vector{Cint}
+   efc_J_rownnz::Vector{Cint}
+   efc_J_rowadr::Vector{Cint}
+   efc_J_rowsuper::Vector{Cint}
+   efc_J_colind::Matrix{Cint}
+   efc_JT_rownnz::Vector{Cint}
+   efc_JT_rowadr::Vector{Cint}
+   efc_JT_rowsuper::Vector{Cint}
+   efc_JT_colind::Matrix{Cint}
+   efc_J::Matrix{mjtNum}
+   efc_JT::Matrix{mjtNum}
+   efc_pos::Vector{mjtNum}
+   efc_margin::Vector{mjtNum}
+   efc_frictionloss::Vector{mjtNum}
+   efc_diagApprox::Vector{mjtNum}
+   efc_KBIP::Matrix{mjtNum}
+   efc_D::Vector{mjtNum}
+   efc_R::Vector{mjtNum}
 
-   efc_AR_rownnz::Array{Cint}
-   efc_AR_rowadr::Array{Cint}
-   efc_AR_colind::Array{Cint}
-   efc_AR::Array{mjtNum}
+   efc_AR_rownnz::Vector{Cint}
+   efc_AR_rowadr::Vector{Cint}
+   efc_AR_colind::Matrix{Cint}
+   efc_AR::Matrix{mjtNum}
 
-   ten_velocity::Array{mjtNum}
-   actuator_velocity::Array{mjtNum}
-   cvel::Array{mjtNum}
-   cdof_dot::Array{mjtNum}
-   qfrc_bias::Array{mjtNum}
-   qfrc_passive::Array{mjtNum}
-   efc_vel::Array{mjtNum}
-   efc_aref::Array{mjtNum}
-   subtree_linvel::Array{mjtNum}
-   subtree_angmom::Array{mjtNum}
-   actuator_force::Array{mjtNum}
-   qfrc_actuator::Array{mjtNum}
-   qfrc_unc::Array{mjtNum}
-   qacc_unc::Array{mjtNum}
+   ten_velocity::Vector{mjtNum}
+   actuator_velocity::Vector{mjtNum}
+   cvel::Matrix{mjtNum}
+   cdof_dot::Matrix{mjtNum}
+   qfrc_bias::Vector{mjtNum}
+   qfrc_passive::Vector{mjtNum}
+   efc_vel::Vector{mjtNum}
+   efc_aref::Vector{mjtNum}
+   subtree_linvel::Matrix{mjtNum}
+   subtree_angmom::Matrix{mjtNum}
+   actuator_force::Vector{mjtNum}
+   qfrc_actuator::Vector{mjtNum}
+   qfrc_unc::Vector{mjtNum}
+   qacc_unc::Vector{mjtNum}
 
-   efc_b::Array{mjtNum}
-   efc_force::Array{mjtNum}
-   efc_state::Array{Cint}
-   qfrc_constraint::Array{mjtNum}
+   efc_b::Vector{mjtNum}
+   efc_force::Vector{mjtNum}
+   efc_state::Vector{Cint}
+   qfrc_constraint::Vector{mjtNum}
 
-   qfrc_inverse::Array{mjtNum}
+   qfrc_inverse::Vector{mjtNum}
 
-   cacc::Array{mjtNum}
-   cfrc_int::Array{mjtNum}
-   cfrc_ext::Array{mjtNum}
+   cacc::Matrix{mjtNum}
+   cfrc_int::Matrix{mjtNum}
+   cfrc_ext::Matrix{mjtNum}
 end
 
 # added stack field manually
@@ -407,6 +407,7 @@ end
 function getdatasize(m::mjModel, d::mjData)
    return Dict(
                :stack=>(d.nstack,1),
+
                :qpos=>(m.nq,1),
                :qvel=>(m.nv,1),
                :act=>(m.na,1),
@@ -420,6 +421,7 @@ function getdatasize(m::mjModel, d::mjData)
                :mocap_quat=>(m.nmocap,4),
                :userdata=>(m.nuserdata,1),
                :sensordata=>(m.nsensordata,1),
+
                :xpos=>(m.nbody,3),
                :xquat=>(m.nbody,4),
                :xmat=>(m.nbody,9),
@@ -435,6 +437,7 @@ function getdatasize(m::mjModel, d::mjData)
                :cam_xmat=>(m.ncam,9),
                :light_xpos=>(m.nlight,3),
                :light_xdir=>(m.nlight,3),
+
                :subtree_com=>(m.nbody,3),
                :cdof=>(m.nv,6),
                :cinert=>(m.nbody,10),
@@ -449,12 +452,15 @@ function getdatasize(m::mjModel, d::mjData)
                :wrap_xpos=>(m.nwrap*2,3),
                :actuator_length=>(m.nu,1),
                :actuator_moment=>(m.nu,m.nv),
+
                :crb=>(m.nbody,10),
                :qM=>(m.nM,1),
                :qLD=>(m.nM,1),
                :qLDiagInv=>(m.nv,1),
                :qLDiagSqrtInv=>(m.nv,1),
+
                :contact=>(m.nconmax,1),
+
                :efc_type=>(m.njmax,1),
                :efc_id=>(m.njmax,1),
                :efc_J_rownnz=>(m.njmax,1),
@@ -474,10 +480,12 @@ function getdatasize(m::mjModel, d::mjData)
                :efc_KBIP=>(m.njmax,4),
                :efc_D=>(m.njmax,1),
                :efc_R=>(m.njmax,1),
+
                :efc_AR_rownnz=>(m.njmax,1),
                :efc_AR_rowadr=>(m.njmax,1),
                :efc_AR_colind=>(m.njmax,m.njmax),
                :efc_AR=>(m.njmax,m.njmax),
+
                :ten_velocity=>(m.ntendon,1),
                :actuator_velocity=>(m.nu,1),
                :cvel=>(m.nbody,6),
@@ -492,11 +500,14 @@ function getdatasize(m::mjModel, d::mjData)
                :qfrc_actuator=>(m.nv,1),
                :qfrc_unc=>(m.nv,1),
                :qacc_unc=>(m.nv,1),
+
                :efc_b=>(m.njmax,1),
                :efc_force=>(m.njmax,1),
                :efc_state=>(m.njmax,1),
                :qfrc_constraint=>(m.nv,1),
+
                :qfrc_inverse=>(m.nv,1),
+
                :cacc=>(m.nbody,6),
                :cfrc_int=>(m.nbody,6),
                :cfrc_ext=>(m.nbody,6)
@@ -557,6 +568,7 @@ function getmodelsize(m::mjModel)
                :dof_damping=>(m.nv,1),
                :dof_invweight0=>(m.nv,1),
                :dof_M0=>(m.nv,1),
+
                :geom_type=>(m.ngeom,1),
                :geom_contype=>(m.ngeom,1),
                :geom_conaffinity=>(m.ngeom,1),
