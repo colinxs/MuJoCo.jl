@@ -57,6 +57,10 @@ Currently, this package is less on Windows and OSX.
 # Examples
 Temporary examples can be found in test suite.
 
+# Visualization
+A version of `simulate.cpp` has been ported to julia here: https://github.com/klowrey/MujocoSim.jl
+This allows you to build up the visualization features you need for your experiments, but nominally does passive dynamics.
+
 # Todo
 Test using @cfunctions to pass Julia code to MuJoCo callback functions
 Test / contemplate making sure all conversions from 0-based to 1-based indexing is correct?
