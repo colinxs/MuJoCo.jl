@@ -70,13 +70,13 @@ global const RNDSTRING     = ["Shadow"      "1"  "S";
                               "Id Color"    "0"  "."]
 
 const PV{T} = Union{Ptr{T},AbstractVector{T},Ptr{Cvoid}}
-const PR{T} = Union{Ptr{T},Ref{T}}
+const PR{T} = Union{Ptr{T},Base.RefValue{T}}
 
 import Base.unsafe_convert, Base.cconvert
 cconvert(::Type{Ptr{mjModel}}, m::jlModel) = unsafe_convert(Ptr{mjModel}, m.m)
 cconvert(::Type{Ptr{mjData}}, d::jlData) = unsafe_convert(Ptr{mjData}, d.d)
-const MODEL = Union{Ptr{mjModel},Ref{mjModel},jlModel,Ptr{Nothing}}
-const DATA = Union{Ptr{mjData},Ref{mjData},jlData}
+const MODEL = Union{Ptr{mjModel},Base.RefValue{mjModel},jlModel,Ptr{Nothing}}
+const DATA = Union{Ptr{mjData},Base.RefValue{mjData},jlData}
 
 
 #---------------------- License activation and certificate (mutex-protected) -----------
@@ -153,7 +153,7 @@ error can be NULL; otherwise assumed to have size error_sz
 """
 function mj_loadXML(filename::String,vfs::Union{Ptr{mjVFS},Ptr{Cvoid}}=C_NULL)
     errsz = 1000
-    err = Vector{UInt8}(undef, errsz) 
+    err = Vector{UInt8}(undef, errsz)
     m=ccall((:mj_loadXML,libmujoco),Ptr{mjModel},(Cstring,Cstring,Ptr{UInt8},Cint),filename,vfs,err,errsz)
     if m == C_NULL
         err[end] = 0;
@@ -239,7 +239,7 @@ function mj_defaultVisual(vis::Ptr{mjVisual}) # only takes in Ptr; mjVisual is s
 end
 
 """copy Model; allocate new if dest is NULL"""
-function mj_copyModel(dest::Union{Ptr{mjModel},Ptr{Nothing}},src::Union{Ptr{mjModel},Ref{mjModel}})
+function mj_copyModel(dest::Union{Ptr{mjModel},Ptr{Nothing}},src::Union{Ptr{mjModel},Base.RefValue{mjModel}})
     ccall((:mj_copyModel,libmujoco),Ptr{mjModel},(Ptr{mjModel},Ptr{mjModel}),dest,src)
 end
 
@@ -685,12 +685,12 @@ Return geomid and distance (x) to nearest surface, or -1 if no intersection.
 geomgroup, flg_static are as in mjvOption; geomgroup==NULL skips group exclusion.
 """
 function mj_ray(m::MODEL,d::DATA,pnt::PV{mjtNum},vec::PV{mjtNum},
-                geomgroup::Vector{mjtByte},flg_static::mjtByte,bodyexclude::Integer, 
+                geomgroup::Vector{mjtByte},flg_static::mjtByte,bodyexclude::Integer,
                 geomid::Vector{Integer})
     ccall((:mj_ray,libmujoco),mjtNum,
           (Ptr{mjModel},Ptr{mjData},Ptr{mjtNum},Ptr{mjtNum},Ptr{mjtByte},mjtByte,Cint,Ptr{Cint}),
           m,d,pnt,vec,
-          geomgroup,flg_static,bodyexclude, 
+          geomgroup,flg_static,bodyexclude,
           geomid)
 end
 
@@ -793,7 +793,7 @@ function mjv_select(m::MODEL,d::DATA,vopt::PR{mjvOption},
                                         mjtNum,mjtNum,mjtNum,
                                         Ptr{mjvScene},Ptr{mjtNum},Ptr{Cint},Ptr{Cint}),
           m,d,vopt,aspectratio,relx,rely,
-          scn,selpnt,Ref(geomid),Ref(skinid))
+          scn,selpnt,Base.RefValue(geomid),Base.RefValue(skinid))
 end
 
 
@@ -818,8 +818,8 @@ end
 """Set (type, size, pos, mat) for connector-type geom between given points.
 Assume that mjv_initGeom was already called to set all other properties.
 """
-function mjv_makeConnector(geom::PR{mjvGeom},_type::Integer,width::mjtNum, 
-                           a0::mjtNum,a1::mjtNum,a2::mjtNum, 
+function mjv_makeConnector(geom::PR{mjvGeom},_type::Integer,width::mjtNum,
+                           a0::mjtNum,a1::mjtNum,a2::mjtNum,
                            b0::mjtNum,b1::mjtNum,b2::mjtNum)
     ccall((:mjv_makeConnector,libmujoco),Cvoid,(Ptr{mjvGeom},Cint,mjtNum,mjtNum,mjtNum,mjtNum,mjtNum,mjtNum,mjtNum),geom,_type,width,a0,a1,a2,b0,b1,b2)
 end
@@ -1435,7 +1435,7 @@ end
 mat must have uncompressed layout; rownnz is modified to end at diagonal.
 The required scratch space is 2*n.
 """
-function mju_cholFactorSparse(mat::PV{mjtNum},n::Integer, 
+function mju_cholFactorSparse(mat::PV{mjtNum},n::Integer,
     rownnz::PV{Cint},rowadr::PV{Cint},colind::PV{Cint},
     scratch::PV{mjtNum},nscratch::Integer)
     ccall((:mju_cholFactorSparse,libmujoco),Cint,
