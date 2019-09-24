@@ -28,6 +28,7 @@ function __init__()
    if !isactivated()
       if Sys.islinux()
          mjglew = Libdl.dlopen_e(libglew, Libdl.RTLD_LAZY | Libdl.RTLD_DEEPBIND | Libdl.RTLD_GLOBAL)
+         mjGL   = Libdl.dlopen_e(libGL, Libdl.RTLD_LAZY | Libdl.RTLD_DEEPBIND | Libdl.RTLD_GLOBAL)
       end
 
       key = ""
