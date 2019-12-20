@@ -1,3 +1,8 @@
+# THIS REPO IS ARCHIVED
+
+Please use https://github.com/Lyceum/MuJoCo.jl for all your MuJoCo needs in Julia. It is nice.
+
+
 # MuJoCo.jl
 Julia wrapper for the MuJoCo Physics Engine. This wrapper tries to both keep full access to all MuJoCo functionality through C pointers while also allow faster development through higher level interface.
 
